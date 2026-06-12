@@ -476,84 +476,84 @@ def map_paper_to_code(paper: dict, code_analysis: dict, code_dir: str) -> dict:
 def generate_report(
     paper: dict, code_analysis: dict, mapping: dict, output_dir: str
 ) -> str:
-    """Write analysis_report.md and analysis_data.json to *output_dir*."""
+    """Write analysis_report.md and analysis_data.json to *output_dir* (Chinese)."""
     os.makedirs(output_dir, exist_ok=True)
 
     lines: list[str] = []
     ap = lambda: lines.append  # shorthand
-    ap()("# Paper vs Code Analysis Report")
+    ap()("# 论文与代码审计报告")
     ap()("")
     ap()("---")
     ap()("")
 
-    # ── 1. Paper Claims ──────────────────────────────────────────────────────
-    ap()("## 1. Paper Claims Analysis")
+    # ── 1. 论文概览 ──────────────────────────────────────────────────────
+    ap()("## 1. 论文概览")
     ap()("")
-    ap()("| Category | Count |")
-    ap()("|----------|------:|")
-    ap()(f"| Methods / architecture components | {len(paper['methods'])} |")
-    ap()(f"| Claims extracted | {len(paper['claims'])} |")
-    ap()(f"| Metrics mentioned | {len(paper['metrics'])} |")
-    ap()(f"| Datasets used | {len(paper['datasets'])} |")
-    ap()(f"| Experiments sections | {len(paper['experiments'])} |")
-    ap()(f"| Baselines compared | {len(paper['baselines'])} |")
-    ap()(f"| Ablation studies | {'Yes' if paper['ablation_studies'] else 'No'} |")
-    ap()(f"| Tables | {paper['tables']} |")
-    ap()(f"| Figures | {paper['figures']} |")
+    ap()("| 类别 | 数量 |")
+    ap()("|------|-----:|)
+    ap()(f"| 方法 / 架构组件 | {len(paper['methods'])} |")
+    ap()(f"| 提取到的声明 | {len(paper['claims'])} |")
+    ap()(f"| 提到的指标 | {len(paper['metrics'])} |")
+    ap()(f"| 使用的数据集 | {len(paper['datasets'])} |")
+    ap()(f"| 实验章节 | {len(paper['experiments'])} |")
+    ap()(f"| 对比的 baseline | {len(paper['baselines'])} |")
+    ap()(f"| 消融实验 | {'有' if paper['ablation_studies'] else '无'} |")
+    ap()(f"| 表格数 | {paper['tables']} |")
+    ap()(f"| 图数 | {paper['figures']} |")
     ap()("")
 
-    # ── 2. Code Structure ────────────────────────────────────────────────────
-    ap()("## 2. Code Structure Analysis")
+    # ── 2. 代码结构 ────────────────────────────────────────────────────
+    ap()("## 2. 代码结构分析")
     ap()("")
-    ap()(f"- **Primary language**: {code_analysis['language']}")
-    ap()(f"- **Total files**: {code_analysis['total_files']}")
+    ap()(f"- **主要语言**：{code_analysis['language']}")
+    ap()(f"- **文件总数**：{code_analysis['total_files']}")
     ap()("")
-    ap()("**File type breakdown:**")
+    ap()("**文件类型分布：**")
     ap()("")
     for ext, count in sorted(code_analysis["file_types"].items(), key=lambda x: -x[1])[
         :12
     ]:
-        ap()(f"- `{ext}`: {count}")
+        ap()(f"- `{ext}`：{count} 个")
     ap()("")
-    ap()("**Capabilities detected:**")
+    ap()("**代码仓库能力检测：**")
     ap()("")
     capabilities = [
-        ("Training code", "has_training"),
-        ("Evaluation code", "has_evaluation"),
-        ("Dataset handling", "has_datasets"),
-        ("Model definitions", "has_models"),
-        ("Configuration files", "has_configs"),
-        ("Run scripts", "has_scripts"),
-        ("Test suite", "has_tests"),
+        ("训练代码", "has_training"),
+        ("评估/测试代码", "has_evaluation"),
+        ("数据集处理", "has_datasets"),
+        ("模型定义", "has_models"),
+        ("配置文件", "has_configs"),
+        ("运行脚本", "has_scripts"),
+        ("测试套件", "has_tests"),
         ("README", "has_readme"),
-        ("Requirements / setup", "has_requirements"),
-        ("Docker support", "has_docker"),
-        ("License", "has_license"),
-        ("Demo / examples", "has_demos"),
-        ("Pretrained weights", "has_pretrained"),
+        ("依赖管理 / setup", "has_requirements"),
+        ("Docker 支持", "has_docker"),
+        ("许可证", "has_license"),
+        ("Demo / 示例", "has_demos"),
+        ("预训练权重", "has_pretrained"),
     ]
     for label, key in capabilities:
         present = code_analysis.get(key, False)
         ap()(f"- {'✅' if present else '❌'} {label}")
     ap()("")
 
-    # ── 3. Paper-to-Code Mapping ─────────────────────────────────────────────
-    ap()("## 3. Paper-to-Code Mapping")
+    # ── 3. 论文与代码对照 ─────────────────────────────────────────────
+    ap()("## 3. 论文与代码对照")
     ap()("")
 
-    # Methods
-    ap()("### 3.1 Methods / Architecture")
+    # 方法
+    ap()("### 3.1 方法 / 架构")
     ap()("")
     if paper["methods"]:
         for m in paper["methods"]:
             status = "✅" if m in mapping["matched_methods"] else "⚠️"
             ap()(f"- {status} **{m}**")
     else:
-        ap()("_(No specific methods extracted.)_")
+        ap()("_(未提取到具体方法)_")
     ap()("")
 
-    # Datasets
-    ap()("### 3.2 Datasets")
+    # 数据集
+    ap()("### 3.2 数据集")
     ap()("")
     all_ds = mapping["matched_datasets"] + mapping["unmatched_datasets"]
     if all_ds:
@@ -561,21 +561,21 @@ def generate_report(
             status = "✅" if d in mapping["matched_datasets"] else "❌"
             ap()(f"- {status} `{d}`")
     else:
-        ap()("_(No datasets extracted.)_")
+        ap()("_(未提取到数据集)_")
     ap()("")
 
-    # Metrics
-    ap()("### 3.3 Metrics & Results")
+    # 指标
+    ap()("### 3.3 指标与结果")
     ap()("")
     for m in paper["metrics"]:
         status = "✅" if m in mapping["matched_metrics"] else "🔶"
         ap()(f"- {status} `{m}`")
     if not paper["metrics"]:
-        ap()("_(No metrics extracted.)_")
+        ap()("_(未提取到指标)_")
     ap()("")
 
-    # Experiments
-    ap()("### 3.4 Experiments Coverage")
+    # 实验
+    ap()("### 3.4 实验覆盖")
     ap()("")
     if paper["experiments"]:
         for e in paper["experiments"]:
@@ -584,46 +584,46 @@ def generate_report(
                 ap()(f"  - ✅ {cov}")
         ap()("")
     if mapping["ablation_implemented"]:
-        ap()("- ✅ Ablation study code found")
+        ap()("- ✅ 消融实验代码已找到")
     elif mapping["ablation_claimed"]:
-        ap()("- ⚠️ Ablation studies mentioned but **no dedicated code found**")
+        ap()("- ⚠️ 论文提到了消融实验，但**代码里没有找到**")
     ap()("")
 
-    # Quality notes
+    # 质量备注
     if mapping["code_quality_notes"]:
-        ap()("### 3.5 Code Quality Notes")
+        ap()("### 3.5 代码质量备注")
         ap()("")
         for note in mapping["code_quality_notes"]:
             ap()(f"- {note}")
         ap()("")
 
-    # ── 4. Detailed Claims ───────────────────────────────────────────────────
-    ap()("## 4. Detailed Claims")
+    # ── 4. 详细声明 ───────────────────────────────────────────────────
+    ap()("## 4. 论文声明详情")
     ap()("")
     if paper["claims"]:
         for i, c in enumerate(paper["claims"], 1):
-            ap()(f"### Claim {i}")
+            ap()(f"### 声明 {i}")
             ap()("")
             ap()(f"> {c['text']}")
             ap()("")
-            ap()(f"- Source: `{c['source']}` ({c['section']})")
+            ap()(f"- 来源：`{c['source']}` ({c['section']})")
             ap()("")
     else:
-        ap()("_(No specific claims extracted.)_")
+        ap()("_(未提取到具体声明)_")
         ap()("")
 
-    # ── 5. Key Files ─────────────────────────────────────────────────────────
-    ap()("## 5. Key Source Files")
+    # ── 5. 关键文件 ───────────────────────────────────────────────────
+    ap()("## 5. 关键源文件")
     ap()("")
     if code_analysis["key_files"]:
         for f in code_analysis["key_files"]:
             ap()(f"- `{f}`")
     else:
-        ap()("_(None identified.)_")
+        ap()("_(未识别到关键文件)_")
     ap()("")
 
-    # ── 6. Summary ───────────────────────────────────────────────────────────
-    ap()("## 6. Summary")
+    # ── 6. 总结 ───────────────────────────────────────────────────────
+    ap()("## 6. 总结")
     ap()("")
     total_methods = len(mapping["matched_methods"]) + len(mapping["unmatched_methods"])
     total_datasets = len(mapping["matched_datasets"]) + len(
@@ -641,26 +641,26 @@ def generate_report(
     )
 
     ap()(
-        f"- **Method implementation coverage**: {len(mapping['matched_methods'])}/{total_methods} "
+        f"- **方法实现覆盖率**：{len(mapping['matched_methods'])}/{total_methods} "
         f"({method_pct:.0f}%)"
     )
     ap()(
-        f"- **Dataset coverage**: {len(mapping['matched_datasets'])}/{total_datasets} "
+        f"- **数据集覆盖率**：{len(mapping['matched_datasets'])}/{total_datasets} "
         f"({dataset_pct:.0f}%)"
     )
     ap()(
-        f"- **Experiment support**: {len(mapping['experiment_coverage'])} areas covered"
+        f"- **实验支持**：覆盖 {len(mapping['experiment_coverage'])} 个方面"
     )
     ap()("")
 
     if mapping["unmatched_methods"] or mapping["unmatched_datasets"]:
-        ap()("- ⚠️ **Some paper claims could not be fully verified** in the codebase")
+        ap()("- ⚠️ **部分论文声明在代码中未能完全验证**")
     else:
-        ap()("- ✅ **Paper claims appear to be well-supported** by the code")
+        ap()("- ✅ **论文声明在代码中有良好支持**")
     ap()("")
 
     if mapping["ablation_claimed"] and not mapping["ablation_implemented"]:
-        ap()("- ⚠️ **Ablation studies claimed but not found in code**")
+        ap()("- ⚠️ **论文声称做了消融实验，但代码中未找到**")
     ap()("")
 
     report = "\n".join(lines)

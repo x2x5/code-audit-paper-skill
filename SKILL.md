@@ -122,7 +122,7 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 ### 最终汇报
 
-给用户一个清晰的总结：
+所有报告和文档必须用中文写，易读易懂。给用户一个清晰的总结：
 
 ```
 ## 审计总结
