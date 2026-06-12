@@ -1,9 +1,9 @@
 ---
-name: arxiv-paper-code-analyzer
+name: paper-code-audit
 description: Given a paper title, searches arXiv for the LaTeX source, finds the corresponding code on GitHub, and analyzes whether the paper claims and experiments match the actual implementation.
 ---
 
-# paper-vs-code-skill
+# paper-code-audit-skill
 
 从 arXiv 下载 LaTeX 源码，从 GitHub 找到代码仓库，然后从 4 个维度审计论文。
 

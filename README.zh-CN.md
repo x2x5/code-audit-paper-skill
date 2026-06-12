@@ -1,4 +1,4 @@
-# paper-vs-code-skill
+# paper-code-audit-skill
 
 > **[English](README.md)**
 
@@ -12,7 +12,7 @@
 
 1. 把仓库克隆到 skills 目录下：
    ```bash
-   git clone https://github.com/YOUR_USER/paper-vs-code-skill.git ~/.agents/skills/paper-vs-code-skill
+   git clone https://github.com/YOUR_USER/paper-code-audit-skill.git ~/.agents/skills/paper-code-audit-skill
    ```
 2. 重启 Zed，然后对代理说：
    > *"帮我分析一下 'Attention Is All You Need' 这篇论文"*
@@ -37,7 +37,7 @@ python3 scripts/audit.py ./output/<论文名>/latex ./output/<论文名>/code -o
 ## 目录结构
 
 ```
-paper-vs-code-skill/
+paper-code-audit-skill/
 ├── SKILL.md                  # Zed Agent skill 定义
 ├── scripts/
 │   ├── fetch_arxiv.py        # 按标题搜 arXiv → 下载 LaTeX 源码

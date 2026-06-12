@@ -43,7 +43,7 @@ def search_arxiv(query: str, max_results: int = 5) -> list[dict]:
     }
     url = f"{ARXIV_API_URL}?{urllib.parse.urlencode(params)}"
 
-    req = urllib.request.Request(url, headers={"User-Agent": "ArxivPaperAnalyzer/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "PaperCodeAudit/1.0"})
     resp = urllib.request.urlopen(req, timeout=30)
     xml_data = resp.read().decode("utf-8")
 
@@ -115,7 +115,7 @@ def download_source(arxiv_id: str, output_dir: str) -> None:
     url = f"{ARXIV_EPRINT_URL}/{base_id}"
 
     print(f"  Downloading source from {url} …")
-    req = urllib.request.Request(url, headers={"User-Agent": "ArxivPaperAnalyzer/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "PaperCodeAudit/1.0"})
     resp = urllib.request.urlopen(req, timeout=60)
     raw_data = resp.read()
 

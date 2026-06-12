@@ -39,7 +39,7 @@ def search_github(query: str, max_results: int = 10) -> list[dict]:
         url,
         headers={
             "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "ArxivPaperAnalyzer/1.0",
+            "User-Agent": "PaperCodeAudit/1.0",
         },
     )
     try:

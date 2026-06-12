@@ -1,4 +1,4 @@
-# paper-vs-code-skill
+# paper-code-audit-skill
 
 > **[中文版](README.zh-CN.md)**
 
@@ -12,7 +12,7 @@ Given a paper title, this tool fetches the LaTeX source from arXiv, finds the co
 
 1. Clone the repo to the skills directory:
    ```bash
-   git clone https://github.com/YOUR_USER/paper-vs-code-skill.git ~/.agents/skills/paper-vs-code-skill
+   git clone https://github.com/YOUR_USER/paper-code-audit-skill.git ~/.agents/skills/paper-code-audit-skill
    ```
 2. Restart Zed, then ask the agent:
    > *"Analyze the paper 'Attention Is All You Need'"*
@@ -37,7 +37,7 @@ python3 scripts/audit.py ./output/<paper-name>/latex ./output/<paper-name>/code 
 ## Directory Structure
 
 ```
-paper-vs-code-skill/
+paper-code-audit-skill/
 ├── SKILL.md                  # Zed Agent skill definition
 ├── scripts/
 │   ├── fetch_arxiv.py        # Search arXiv by title → download LaTeX source
