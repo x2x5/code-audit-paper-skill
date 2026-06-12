@@ -64,6 +64,23 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 每个方法给出结论：✅ 一致 / ⚠️ 部分一致 / ❌ 不一致
 
+#### 输出一份方法对比文档
+
+把论文里的每个方法/模块描述和代码里的实际实现对照着写出来，存为 `audit/method_vs_code.md`。
+
+格式：
+
+| 论文描述 | 花哨程度 | 代码实际实现 | 结论 |
+|----------|----------|-------------|------|
+| "We propose a novel multi-head attention mechanism with conditional computation" | 高 | 就是 8 头 attention，没有 conditional computation | ❌ 夸大了 |
+| "We design a hierarchical feature pyramid network with bidirectional fusion" | 中 | 就是一个 FPN + 一个 top-down 路径 | ⚠️ 简化了 |
+| "We introduce a learnable gating mechanism to adaptively fuse modalities" | 中 | 一个 weighted sum，权重可学习 | ✅ 一致 |
+| "We adopt a two-stage training strategy with curriculum learning" | 低 | 就是先用小 lr 训再用大 lr 训 | ✅ 一致 |
+
+**花哨程度**分三档：高（听起来很复杂）/ 中（有一点点包装）/ 低（实话实说）
+
+目的是让读者一眼看出论文的包装和代码的真实差距。
+
 ---
 
 ### Section 2：实验细节一致性
