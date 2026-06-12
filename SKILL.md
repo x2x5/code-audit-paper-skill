@@ -1,9 +1,11 @@
 ---
-name: paper-code-audit
-description: Given a paper title, searches arXiv for the LaTeX source, finds the corresponding code on GitHub, and analyzes whether the paper claims and experiments match the actual implementation.
+name: code-audit-paper
+description: Given a paper title, fetches LaTeX source from arXiv and code from GitHub, then audits whether the paper exaggerates, hides details, or makes unverifiable claims — using the actual code as evidence.
 ---
 
-# paper-code-audit-skill
+# code-audit-paper-skill
+
+**用代码当证据，审计论文有没有吹牛、有没有隐瞒、实验能不能复现。**
 
 从 arXiv 下载 LaTeX 源码，从 GitHub 找到代码仓库，然后从 4 个维度审计论文。
 
