@@ -5,77 +5,120 @@ description: Given a paper title, searches arXiv for the LaTeX source, finds the
 
 # paper-vs-code-skill
 
-Analyze a paper: fetch LaTeX from arXiv, find code on GitHub, and audit whether the paper's claims match the implementation.
+Download LaTeX from arXiv, find the code on GitHub, then audit the paper across 4 dimensions.
 
 ## Workflow
 
-### 1. Parse Input
+### 0. Prepare
 
-Determine what the user provided:
-- **arXiv ID** (e.g., `1706.03762`) — pass directly
-- **Paper title** (e.g., `Attention Is All You Need`) — use as search query
-- **Full URL** (e.g., `https://arxiv.org/abs/1706.03762`) — extract the ID
-
-Ask the user for an output base directory, or use the current working directory.
-
-### 2. Fetch LaTeX Source from arXiv
+Parse the user's input (arXiv ID / paper title / URL), ask for an output directory, then run the three scripts in order:
 
 ```bash
 python3 scripts/fetch_arxiv.py "<query>" --output-dir <base_dir>
-```
-
-- The script searches arXiv by title, lets the user pick (if multiple), downloads and extracts the LaTeX source to `<paper_name>/latex/`.
-- If the paper only has a PDF (no LaTeX source), the script exits with an error. Tell the user: *"This paper has no LaTeX source on arXiv, cannot analyze."* Do not attempt PDF parsing.
-
-### 3. Find and Clone Code from GitHub
-
-```bash
 python3 scripts/fetch_code.py "<query>" --output-dir <base_dir> --latex-dir <base_dir>/<paper_name>/latex
-```
-
-The script:
-1. Scans the LaTeX source for `github.com` URLs — clones directly if found
-2. If no URLs found, searches GitHub by title — shows results for user selection
-3. If nothing found, exits — tell the user and ask if they have a URL
-
-On success, the repo is cloned to `<paper_name>/code/`. If no repo exists, just say so.
-
-### 4. Run the Audit
-
-```bash
 python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/code --output-dir <base_dir>/<paper_name>/audit
 ```
 
-This parses claims from LaTeX, analyzes code structure, cross-references them, and writes:
-- `audit/analysis_report.md` — human-readable report
-- `audit/analysis_data.json` — structured data
+The `audit.py` script generates a preliminary report with automated analysis (claims extracted, code structure, keyword matching). Read it to get started. Then go through the 4 sections below manually — the automated report is just a starting point, you need to inspect the actual LaTeX and code to give accurate answers.
 
-### 5. Present the Results
+---
 
-Read `analysis_report.md` and summarize for the user:
-- Method/dataset/metric coverage
-- Which experiments have code support
-- Any claims not found in code
-- Code quality notes (README, tests, configs, etc.)
+### Section 0: Reproducibility Check
 
-## Output Structure
+Check these three things and report ✅ / ⚠️ / ❌ for each:
+
+#### Datasets
+- Read the paper's experiment sections → list every dataset used
+- Look in the code for download scripts, dataset URLs, or README instructions
+- If a dataset is missing from code → ⚠️ flag it
+
+#### Pretrained Weights
+- Does the paper say they used pretrained weights?
+- Are the weights auto-downloaded in the code? Is there a link in README?
+
+#### Baselines
+- Which baselines does the paper compare against?
+- Does the code include implementations of those baselines, or just compare numbers?
+
+---
+
+### Section 1: Method Implementation
+
+Compare what the paper says about the architecture vs what the code actually builds.
+
+Read the Method / Architecture section in the LaTeX, then look at the model definition code:
+
+- Does the code implement the same **architecture** described in the paper? (backbone, modules, components)
+- Are the **key design choices** reflected? (attention mechanism, normalization, activation functions, etc.)
+- Are there any **significant deviations**? (paper describes one thing, code does another)
+- Are there **extra components** in code that the paper doesn't mention?
+
+For each method/section identified, give a conclusion: ✅ matches / ⚠️ partial / ❌ differs.
+
+---
+
+### Section 2: Experiment Reproducibility
+
+Compare the experimental setup described in the paper vs the actual configuration in the code.
+
+Check these:
+
+- **Hyperparameters**: learning rate, batch size, epochs, optimizer, scheduler, weight decay, dropout — look in paper tables vs code config files
+- **Data preprocessing**: normalization, augmentation, image size — described in paper vs implemented
+- **Training details**: hardware, random seed, training time — mentioned vs provided
+- **Evaluation protocol**: metrics calculation, test splits, post-processing — consistent?
+
+---
+
+### Section 3: Experiment Coverage
+
+Map every experiment in the paper to code.
+
+- Read the paper → count tables and experiment figures
+- Look at the code → find the corresponding scripts for each experiment
+- For each table/figure, determine if the code supports reproducing it
+
+Report as:
+| # | Table / Figure | Topic | Code Found? | Script / Config |
+|---|---|---|---|---|
+| Table 1 | Main results on ImageNet | Classification accuracy | ✅ | `scripts/eval.py` |
+| Table 2 | Ablation on depth | Layer count study | ⚠️ | Configs exist but no automation |
+| Figure 3 | Convergence curve | Training loss over time | ❌ | No plotting code |
+
+---
+
+### Present the Results
+
+After going through all 4 sections, give the user a clear summary:
 
 ```
-<paper_name>/
-├── latex/          # LaTeX source from arXiv
-├── code/           # Code from GitHub
-├── audit/          # Audit report
-│   ├── analysis_report.md
-│   └── analysis_data.json
-├── paper.json      # Paper metadata
-└── repo.json       # Repository info
+## Summary
+
+### Section 0: Reproducibility
+- Datasets: 3/3 provided ✅
+- Weights: auto-downloaded ✅
+- Baselines: 2/5 implemented ⚠️
+
+### Section 1: Method Implementation
+- Architecture matches ✅
+- Attention mechanism differs from paper ❌
+  → Paper describes multi-head attention with 8 heads, code uses 12 heads
+
+### Section 2: Experiment Reproducibility
+- Hyperparameters match paper ✅
+- Data augmentation differs ⚠️
+  → Paper uses RandomResizedCrop, code uses CenterCrop
+
+### Section 3: Experiment Coverage
+- 5/7 tables have corresponding code ⚠️
+- 2/4 figures have corresponding code ⚠️
 ```
 
 ## Edge Cases
 
 | Situation | Action |
 |-----------|--------|
-| Paper not on arXiv | Tell user, suggest they provide a URL |
-| No LaTeX source (only PDF) | Report it, do not parse PDF |
-| No GitHub repo found | Ask user for URL; if none, say so |
-| Missing LaTeX or code | Audit cannot run, explain why |
+| Paper not on arXiv | Tell user, ask for URL |
+| No LaTeX source (only PDF) | Report it, stop |
+| No GitHub repo found | Ask user for URL |
+| Missing LaTeX or code | Can't audit, explain why |
