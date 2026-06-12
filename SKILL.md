@@ -17,6 +17,11 @@ python3 scripts/fetch_code.py "<query>" --output-dir <base_dir> --latex-dir <bas
 python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/code --output-dir <base_dir>/<paper_name>/audit
 ```
 
+`fetch_code.py` 搜索 GitHub 的逻辑：
+1. 先扫 LaTeX 源码里的 `github.com` 链接，有就直接克隆
+2. 没有就按论文标题搜 GitHub，让用户选
+3. **仓库克隆下来后，检查里面有没有实际代码文件（.py、.cpp、.java 等）。如果只有一个 README 或者几乎空的，直接说这个仓库是空的，不要再去搜其他的。空的就是空的。**
+
 `audit.py` 会生成一份初步报告（自动提取的 claims、代码结构分析、关键词匹配）。用这份报告做起点，然后按下面 4 个 Section 逐条检查 —— 自动报告只是辅助，你需要亲自看 LaTeX 源码和代码来给出准确判断。
 
 ---

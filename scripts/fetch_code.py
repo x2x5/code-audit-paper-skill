@@ -106,11 +106,41 @@ def clone_repo(repo_url: str, target_dir: str) -> bool:
         timeout=300,
     )
     if result.returncode == 0:
-        print(f"  ✓ Cloned → {target_dir}")
+        print(f"  \u2713 Cloned \u2192 {target_dir}")
         return True
     else:
-        print(f"  ✗ Failed: {result.stderr.strip()}")
+        print(f"  \u2717 Failed: {result.stderr.strip()}")
         return False
+
+
+_SOURCE_EXTS = {
+    ".py",
+    ".java",
+    ".cpp",
+    ".c",
+    ".h",
+    ".hpp",
+    ".rs",
+    ".go",
+    ".ts",
+    ".js",
+    ".r",
+    ".m",
+    ".jl",
+    ".lua",
+    ".sh",
+}
+
+
+def is_empty_repo(code_dir: str) -> bool:
+    """Check if a cloned repo has any actual source code files."""
+    for root, dirs, files in os.walk(code_dir):
+        dirs[:] = [d for d in dirs if d != ".git"]
+        for f in files:
+            ext = os.path.splitext(f)[1].lower()
+            if ext in _SOURCE_EXTS:
+                return False  # found at least one real source file
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -205,7 +235,19 @@ def main() -> None:
     if repo_url:
         code_dir = os.path.join(base_dir, "code")
         if clone_repo(repo_url, code_dir):
-            print(f"\nCode saved → {code_dir}")
+            # Check if repo has actual code
+            if is_empty_repo(code_dir):
+                print(
+                    f"\n  \u26a0 Repository is empty or contains no source code files."
+                )
+                print(
+                    f"     Only has: {[f for f in os.listdir(code_dir) if os.path.isfile(os.path.join(code_dir, f))]}"
+                )
+                print(
+                    f"\nThis repo exists but has no actual code. Audit cannot proceed."
+                )
+                sys.exit(1)
+            print(f"\nCode saved \u2192 {code_dir}")
             # Save repo info
             repo_info = {"url": repo_url, "local_path": code_dir}
             with open(os.path.join(base_dir, "repo.json"), "w") as f:
