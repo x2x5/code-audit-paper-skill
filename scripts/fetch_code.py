@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 """
-search_github.py — Find a paper's code repository on GitHub and clone it.
+fetch_code.py — Find and clone a paper's code repository from GitHub.
 
-Usage:
-    python3 search_github.py "<paper-title>" --output-dir <base_dir> --latex-dir <base_dir>/<paper_name>/latex
+Usage (agent provides URL):
+    python3 fetch_code.py "<query>" --output-dir <base_dir> \\
+        --latex-dir <base_dir>/<paper_name>/latex --repo-url <URL>
 
-The script first scans the LaTeX source for GitHub URLs. If none are found, it
-searches GitHub by paper title. The user selects the repository, and it is
-cloned to <base_dir>/<paper_name>/code/.
+Usage (search mode, when no URL found in LaTeX):
+    python3 fetch_code.py "<query>" --output-dir <base_dir> \\
+        --latex-dir <base_dir>/<paper_name>/latex
+
+The script's job is to clone. The agent is responsible for:
+- Deciding which GitHub URL is the paper's actual code repository
+- Providing it via --repo-url
+- Choosing the paper_name (method name or sanitized title)
+- Judging whether the cloned repo is a real code implementation
 """
 
 import argparse
@@ -54,14 +61,18 @@ def search_github(query: str, max_results: int = 10) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-#  Scan LaTeX for GitHub URLs
+#  Scan LaTeX for GitHub URLs (informational only)
 # ---------------------------------------------------------------------------
 
 
-def find_github_urls_in_latex(latex_dir: str) -> list[str]:
-    """Walk the LaTeX directory and return every github.com URL found."""
-    urls: list[str] = []
-    pattern = re.compile(r"https?://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+")
+def find_github_urls_in_latex(latex_dir: str) -> list[dict]:
+    """Walk the LaTeX directory and return every github.com URL with context.
+
+    Returns a list of dicts: {url, file, line, context}.
+    The agent uses the context to decide which URL is the paper's code repo.
+    """
+    results: list[dict] = []
+    url_pattern = re.compile(r"(https?://github\.com/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)")
 
     for root, _dirs, files in os.walk(latex_dir):
         for f in files:
@@ -70,16 +81,28 @@ def find_github_urls_in_latex(latex_dir: str) -> list[str]:
             path = os.path.join(root, f)
             try:
                 with open(path, "r", encoding="utf-8", errors="ignore") as fh:
-                    content = fh.read()
-                for match in pattern.findall(content):
-                    # Strip trailing punctuation that may have been captured
-                    clean = re.sub(r"[)\]}.,;:\s]+$", "", match)
-                    if clean not in urls:
-                        urls.append(clean)
+                    lines = fh.readlines()
+                for lineno, line in enumerate(lines, 1):
+                    for match in url_pattern.finditer(line):
+                        url = match.group(1)
+                        # Strip trailing punctuation that may have been captured
+                        clean_url = re.sub(r"[)\]}.,;:\s]+$", "", url)
+                        context = line.strip()[:200]
+                        rel_path = os.path.relpath(path, latex_dir)
+                        # Deduplicate
+                        if clean_url not in [r["url"] for r in results]:
+                            results.append(
+                                {
+                                    "url": clean_url,
+                                    "file": rel_path,
+                                    "line": lineno,
+                                    "context": context,
+                                }
+                            )
             except Exception as exc:
                 print(f"  Warning: could not read {path}: {exc}")
 
-    return urls
+    return results
 
 
 # ---------------------------------------------------------------------------
@@ -113,36 +136,6 @@ def clone_repo(repo_url: str, target_dir: str) -> bool:
         return False
 
 
-_SOURCE_EXTS = {
-    ".py",
-    ".java",
-    ".cpp",
-    ".c",
-    ".h",
-    ".hpp",
-    ".rs",
-    ".go",
-    ".ts",
-    ".js",
-    ".r",
-    ".m",
-    ".jl",
-    ".lua",
-    ".sh",
-}
-
-
-def is_empty_repo(code_dir: str) -> bool:
-    """Check if a cloned repo has any actual source code files."""
-    for root, dirs, files in os.walk(code_dir):
-        dirs[:] = [d for d in dirs if d != ".git"]
-        for f in files:
-            ext = os.path.splitext(f)[1].lower()
-            if ext in _SOURCE_EXTS:
-                return False  # found at least one real source file
-    return True
-
-
 # ---------------------------------------------------------------------------
 #  CLI
 # ---------------------------------------------------------------------------
@@ -157,107 +150,120 @@ def main() -> None:
     parser.add_argument(
         "--latex-dir", "-l", default=None, help="Path to LaTeX source directory"
     )
+    parser.add_argument(
+        "--repo-url",
+        "-r",
+        default=None,
+        help="GitHub repository URL to clone (agent-specified)",
+    )
     args = parser.parse_args()
 
     base_dir = os.path.abspath(args.output_dir)
     latex_dir = os.path.abspath(args.latex_dir) if args.latex_dir else None
 
-    # Determine paper name from paper.json if available
-    paper_meta_path = os.path.join(base_dir, "paper.json")
+    # ------ Determine paper name from --latex-dir path ------
+    # --latex-dir is <base_dir>/<paper_name>/latex
     paper_name: str | None = None
-    if os.path.isfile(paper_meta_path):
-        with open(paper_meta_path) as f:
-            paper_meta = json.load(f)
-        paper_name = paper_meta.get("title", "").strip()
+    if latex_dir:
+        parent = os.path.dirname(latex_dir)  # <base_dir>/<paper_name>
+        if os.path.isdir(parent):
+            paper_name = os.path.basename(parent)
+
     if not paper_name:
-        paper_name = args.query
+        # Fallback: use a sanitized version of the query
+        paper_name = re.sub(r"[^a-z0-9-]+", "-", args.query.lower().strip())
+        paper_name = paper_name[:60].strip("-")
 
-    # ---- Phase 1: check LaTeX for embedded URLs ----------------------------
-    repo_url: str | None = None
-    if latex_dir and os.path.isdir(latex_dir):
-        print("Checking LaTeX source for GitHub URLs …")
-        found_urls = find_github_urls_in_latex(latex_dir)
-        if found_urls:
-            print(f"  Found URL(s):")
-            for u in found_urls:
-                print(f"    • {u}")
-            print()
-            # Try each URL in order; stop at first successful clone
-            for u in found_urls:
-                code_dir = os.path.join(base_dir, "code")
-                if clone_repo(u, code_dir):
-                    repo_url = u
-                    break
+    # Target code directory: <base_dir>/<paper_name>/code
+    code_dir = os.path.join(base_dir, paper_name, "code")
+    repo_info_path = os.path.join(base_dir, paper_name, "repo.json")
 
-    # ---- Phase 2: search GitHub by title -----------------------------------
-    if not repo_url:
-        print("Searching GitHub for repositories …")
-        queries = [paper_name, paper_name[:60]]
+    print(f"Paper name: {paper_name}")
+    print(f"Code target: {code_dir}")
+    print()
 
-        # Try to extract a short key-phrase from the title
-        short = re.match(r"^(.+?)[:.]", paper_name)
-        if short:
-            queries.append(short.group(1).strip())
-
-        all_results: list[dict] = []
-        for q in queries:
-            print(f'  Searching: "{q}"')
-            all_results.extend(search_github(q))
-
-        # Deduplicate by full_name
-        seen: set[str] = set()
-        unique: list[dict] = []
-        for r in all_results:
-            if r["full_name"] not in seen:
-                seen.add(r["full_name"])
-                unique.append(r)
-
-        if unique:
-            print(f"\n  Found {len(unique)} repository/ies:")
-            for i, r in enumerate(unique[:10]):
-                desc = (r.get("description") or "")[:90]
-                print(f"    [{i + 1}] {r['full_name']}")
-                if desc:
-                    print(f"        {desc}")
-                print(f"        ⭐ {r['stargazers_count']}  {r['html_url']}")
-            print()
-            try:
-                choice = int(
-                    input(f"  Select repo (1–{min(len(unique), 10)}, 0 to skip): ")
-                )
-                if 1 <= choice <= min(len(unique), 10):
-                    selected = unique[choice - 1]
-                    repo_url = selected["html_url"]
-            except (ValueError, EOFError):
-                print("  Invalid input.")
-
-    # ---- Phase 3: clone ----------------------------------------------------
-    if repo_url:
-        code_dir = os.path.join(base_dir, "code")
-        if clone_repo(repo_url, code_dir):
-            # Check if repo has actual code
-            if is_empty_repo(code_dir):
-                print(
-                    f"\n  \u26a0 Repository is empty or contains no source code files."
-                )
-                print(
-                    f"     Only has: {[f for f in os.listdir(code_dir) if os.path.isfile(os.path.join(code_dir, f))]}"
-                )
-                print(
-                    f"\nThis repo exists but has no actual code. Audit cannot proceed."
-                )
-                sys.exit(1)
+    # ------ Phase 0: --repo-url provided by agent ------
+    if args.repo_url:
+        print(f"Using provided repository URL: {args.repo_url}")
+        if clone_repo(args.repo_url, code_dir):
             print(f"\nCode saved \u2192 {code_dir}")
             # Save repo info
-            repo_info = {"url": repo_url, "local_path": code_dir}
-            with open(os.path.join(base_dir, "repo.json"), "w") as f:
+            repo_info = {"url": args.repo_url, "local_path": code_dir}
+            with open(repo_info_path, "w") as f:
                 json.dump(repo_info, f, indent=2)
+            print(f"Repo info \u2192 {repo_info_path}")
+        else:
+            print("\nFailed to clone repository.")
+            sys.exit(1)
+        return
+
+    # ------ Phase 1: scan LaTeX for URLs (informational only) ------
+    if latex_dir and os.path.isdir(latex_dir):
+        print("Checking LaTeX source for GitHub URLs \u2026")
+        found_urls = find_github_urls_in_latex(latex_dir)
+        if found_urls:
+            print(f"\n  Found {len(found_urls)} GitHub URL(s) in LaTeX source:")
+            print()
+            for r in found_urls:
+                print(f"    URL: {r['url']}")
+                print(f"    File: {r['file']}:{r['line']}")
+                print(f"    Context: {r['context']}")
+                print()
+            print("  \u2500" * 60)
+            print("  Agent: examine the context above and decide")
+            print("  which URL is the paper's code repository.")
+            print("  Then re-run with: --repo-url <URL>")
+            print("  \u2500" * 60)
+            print()
+        else:
+            print("  No GitHub URLs found in LaTeX source.\n")
     else:
-        print("\nNo suitable repository found or selected.")
-        print(
-            "You can manually clone a repo into the 'code' subdirectory and re-run compare.py."
-        )
-        sys.exit(1)
+        print("  No LaTeX directory provided or found.\n")
+
+    # ------ Phase 2: search GitHub by title ------
+    print("Searching GitHub for repositories \u2026")
+    queries = [args.query, args.query[:60]]
+
+    # Try to extract a short key-phrase from the title
+    short = re.match(r"^(.+?)[:.]", args.query)
+    if short:
+        queries.append(short.group(1).strip())
+
+    all_results: list[dict] = []
+    for q in queries:
+        print(f'  Searching: "{q}"')
+        all_results.extend(search_github(q))
+
+    # Deduplicate by full_name
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for r in all_results:
+        if r["full_name"] not in seen:
+            seen.add(r["full_name"])
+            unique.append(r)
+
+    if unique:
+        print(f"\n  Found {len(unique)} repository/ies on GitHub:")
+        for i, r in enumerate(unique[:10]):
+            desc = (r.get("description") or "")[:90]
+            print(f"    [{i + 1}] {r['full_name']}")
+            if desc:
+                print(f"        {desc}")
+            print(f"        \u2b50 {r['stargazers_count']}  {r['html_url']}")
+        print()
+        print("  \u2500" * 60)
+        print("  Agent: select the correct repository and")
+        print("  re-run with: --repo-url <URL>")
+        print("  \u2500" * 60)
+    else:
+        print("\n  No repositories found on GitHub.")
+        print("  You can still manually clone a repo into:")
+        print(f"    {code_dir}")
+        print("  Then re-run the audit.")
+
+    print()
+    print("No repository was cloned. Use --repo-url to specify one.")
+    sys.exit(1)
 
 
 if __name__ == "__main__":

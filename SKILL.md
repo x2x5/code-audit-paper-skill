@@ -11,20 +11,57 @@ description: Given a paper title, fetches LaTeX source from arXiv and code from 
 
 ## 准备工作
 
-解析用户的输入（arXiv ID / 论文标题 / 完整 URL），询问输出目录，然后按顺序跑三个脚本：
+解析用户的输入（arXiv ID / 论文标题 / 完整 URL），确定输出目录和论文名，然后按顺序执行：
+
+### 1. 获取 LaTeX 源码
 
 ```bash
 python3 scripts/fetch_arxiv.py "<query>" --output-dir <base_dir>
-python3 scripts/fetch_code.py "<query>" --output-dir <base_dir> --latex-dir <base_dir>/<paper_name>/latex
-python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/code --output-dir <base_dir>/<paper_name>/audit
 ```
 
-`fetch_code.py` 搜索 GitHub 的逻辑：
-1. 先扫 LaTeX 源码里的 `github.com` 链接，有就直接克隆
-2. 没有就按论文标题搜 GitHub，让用户选
-3. **仓库克隆下来后，检查里面有没有实际代码文件（.py、.cpp、.java 等）。如果只有一个 README 或者几乎空的，直接说这个仓库是空的，不要再去搜其他的。空的就是空的。**
+### 2. 查找并克隆代码仓库
 
-`audit.py` 会生成一份初步报告（自动提取的 claims、代码结构分析、关键词匹配）。用这份报告做起点，然后按下面 4 个 Section 逐条检查 —— 自动报告只是辅助，你需要亲自看 LaTeX 源码和代码来给出准确判断。
+**这一步由你（agent）来做关键判断。**
+
+先**读 LaTeX 源码**，在 `.tex` 和 `.bib` 文件中搜索 `github.com` 链接。
+看链接的上下文（`\href`、`\url`、周围文字），判断哪个是论文**实际的代码仓库**
+（排除依赖库、数据集仓库、个人主页等）。
+
+确定 URL 后，用 `--repo-url` 参数运行 fetch_code.py：
+
+```bash
+python3 scripts/fetch_code.py "<query>" --output-dir <base_dir> \
+    --latex-dir <base_dir>/<paper_name>/latex \
+    --repo-url <确定的仓库 URL>
+```
+
+如果 LaTeX 里**没有 GitHub 链接**，先跑搜索模式：
+
+```bash
+python3 scripts/fetch_code.py "<query>" --output-dir <base_dir> \
+    --latex-dir <base_dir>/<paper_name>/latex
+```
+
+脚本会扫描 LaTeX、搜索 GitHub 并展示结果。你从中选择合适的仓库，
+然后重新加上 `--repo-url` 运行。
+
+**关于论文名 `<paper_name>`：**
+- 如果论文有知名的方法名（如 ResNet、ViT、YOLO），用方法名
+- 否则用 sanitized 后的论文标题（如 deep-network-for-image-segmentation）
+
+**克隆完成后：** 检查仓库内容，判断它是不是有实际代码的论文复现仓库
+（而不是空壳项目、个人主页、或纯文档项目）。
+
+### 3. 执行审计
+
+```bash
+python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/code \
+    --output-dir <base_dir>/<paper_name>/audit
+```
+
+`audit.py` 会生成一份初步报告（自动提取的 claims、代码结构分析、关键词匹配）。
+用这份报告做起点，然后按下面 4 个 Section 逐条检查 ——
+自动报告只是辅助，你需要亲自看 LaTeX 源码和代码来给出准确判断。
 
 ---
 
