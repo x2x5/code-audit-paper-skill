@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-search_arxiv.py — Search arXiv for a paper and download its LaTeX source.
+search_arxiv.py — Search arXiv for a paper, download its PDF and LaTeX source.
 
 Usage:
     python3 search_arxiv.py "<paper-title>" --output-dir <base_dir>
 
-The script queries the arXiv API, lets the user pick from results (if multiple),
-downloads the LaTeX source bundle, and extracts it to <base_dir>/<paper_name>/latex/.
+The script:
+  1. Queries the arXiv API to find the paper
+  2. Downloads the PDF to <base_dir>/<paper_name>/paper.pdf
+  3. Downloads and extracts the LaTeX source to <base_dir>/<paper_name>/latex/
 
-If the paper only has a PDF on arXiv (no LaTeX source), the script reports that
-clearly and exits — no PDF parsing is attempted.
+PDF is downloaded first, so even if LaTeX source is unavailable (PDF-only paper),
+the PDF is still saved and metadata is recorded.
 """
 
 import argparse
@@ -101,6 +103,63 @@ def search_arxiv(query: str, max_results: int = 5) -> list[dict]:
 def _looks_like_pdf(data: bytes) -> bool:
     """Check whether *data* starts with the PDF magic bytes."""
     return data[:4] == b"%PDF"
+
+
+# ---------------------------------------------------------------------------
+#  PDF download
+# ---------------------------------------------------------------------------
+
+
+def download_pdf(arxiv_id: str, output_dir: str) -> str | None:
+    """Download the PDF from arXiv and save it as paper.pdf.
+
+    Returns the path to the saved PDF, or None if all attempts failed.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    pdf_path = os.path.join(output_dir, "paper.pdf")
+
+    # Build candidate URLs: try versioned first (if present), then base ID
+    urls_to_try = []
+    if re.search(r"v\d+$", arxiv_id):
+        urls_to_try.append(f"https://arxiv.org/pdf/{arxiv_id}.pdf")
+        urls_to_try.append(f"https://arxiv.org/pdf/{arxiv_id}")
+    base_id = re.sub(r"v\d+$", "", arxiv_id)
+    urls_to_try.append(f"https://arxiv.org/pdf/{base_id}.pdf")
+    urls_to_try.append(f"https://arxiv.org/pdf/{base_id}")
+
+    # Deduplicate while preserving order
+    seen_urls: set[str] = set()
+    unique_urls: list[str] = []
+    for u in urls_to_try:
+        if u not in seen_urls:
+            seen_urls.add(u)
+            unique_urls.append(u)
+
+    for url in unique_urls:
+        try:
+            print(f"  Downloading PDF from {url} …")
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "PaperCodeAudit/1.0"}
+            )
+            resp = urllib.request.urlopen(req, timeout=60)
+            data = resp.read()
+
+            if data[:4] == b"%PDF":
+                with open(pdf_path, "wb") as f:
+                    f.write(data)
+                print(f"  \u2713 PDF saved \u2192 {pdf_path}")
+                return pdf_path
+            else:
+                print(f"  Warning: response from {url} is not a PDF")
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                continue
+            print(f"  Warning: HTTP {e.code} downloading PDF from {url}")
+        except Exception as e:
+            print(f"  Warning: {e}")
+
+    print(f"  \u2717 Could not download PDF for {arxiv_id}")
+    return None
 
 
 def download_source(arxiv_id: str, output_dir: str) -> None:
@@ -203,7 +262,7 @@ def sanitize_paper_name(title: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Search arXiv and download LaTeX source"
+        description="Search arXiv and download PDF + LaTeX source"
     )
     parser.add_argument("query", help="Paper title or arXiv ID (e.g. 1706.03762)")
     parser.add_argument(
@@ -256,30 +315,35 @@ def main() -> None:
     paper = results[choice]
     paper_name = sanitize_paper_name(paper["title"])
     latex_dir = os.path.join(args.output_dir, paper_name, "latex")
+    meta_dir = os.path.dirname(latex_dir)  # <paper_name>/
+    os.makedirs(meta_dir, exist_ok=True)
 
     print(f"\nPaper: {paper['title']}")
     print(f"  arXiv ID : {paper['id']}")
-    print(f"  Directory: {latex_dir}")
+    print(f"  Directory: {meta_dir}")
 
-    # --- Step 2: download & extract -----------------------------------------
+    # --- Step 2: save metadata (before any downloads) -----------------------
+    with open(os.path.join(meta_dir, "paper.json"), "w", encoding="utf-8") as f:
+        json.dump(paper, f, indent=2, ensure_ascii=False)
+    print(f"  Metadata   → {os.path.join(meta_dir, 'paper.json')}")
+
+    # --- Step 3: download PDF (always available for arXiv papers) -----------
+    pdf_path = download_pdf(paper["id"], meta_dir)
+
+    # --- Step 4: download & extract LaTeX source ----------------------------
     try:
         download_source(paper["id"], latex_dir)
     except RuntimeError as e:
         print(f"\n  ✗ {e}")
-        print("\nThis paper cannot be analyzed because LaTeX source is not available.")
-        print(
-            "If the paper has a GitHub repository, you can still run search_github.py"
-        )
-        print("and compare.py on the code alone.")
+        if pdf_path:
+            print(f"  (PDF was saved to {pdf_path} but LaTeX source is unavailable.)")
+        else:
+            print("  (Neither PDF nor LaTeX source are available.)")
         sys.exit(1)
 
-    # --- Step 3: save metadata ----------------------------------------------
-    meta_dir = os.path.dirname(latex_dir)  # <paper_name>/
-    with open(os.path.join(meta_dir, "paper.json"), "w", encoding="utf-8") as f:
-        json.dump(paper, f, indent=2, ensure_ascii=False)
-
     print(f"\nDone. LaTeX source → {latex_dir}")
-    print(f"      Metadata   → {os.path.join(meta_dir, 'paper.json')}")
+    if pdf_path:
+        print(f"      PDF         → {pdf_path}")
 
 
 if __name__ == "__main__":

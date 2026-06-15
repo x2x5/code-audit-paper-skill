@@ -490,7 +490,7 @@ def generate_report(
     ap()("## 1. 论文概览")
     ap()("")
     ap()("| 类别 | 数量 |")
-    ap()("|------|-----:|)
+    ap()("|------|-----:|")
     ap()(f"| 方法 / 架构组件 | {len(paper['methods'])} |")
     ap()(f"| 提取到的声明 | {len(paper['claims'])} |")
     ap()(f"| 提到的指标 | {len(paper['metrics'])} |")

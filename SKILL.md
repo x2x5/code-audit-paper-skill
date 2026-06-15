@@ -7,16 +7,30 @@ description: Given a paper title, fetches LaTeX source from arXiv and code from 
 
 **用代码当证据，审计论文有没有吹牛、有没有隐瞒、实验能不能复现。**
 
-从 arXiv 下载 LaTeX 源码，从 GitHub 找到代码仓库，然后从 4 个维度审计论文。
+从 arXiv 下载 PDF 和 LaTeX 源码，从 GitHub 找到代码仓库，然后从 4 个维度审计论文。
 
 ## 准备工作
 
 解析用户的输入（arXiv ID / 论文标题 / 完整 URL），确定输出目录和论文名，然后按顺序执行：
 
-### 1. 获取 LaTeX 源码
+### 1. 下载 PDF 和 LaTeX 源码
+
+先下载 PDF（arXiv 上几乎总是有），再下载 LaTeX 源码。
+如果论文只有 PDF 没有 LaTeX 源码，PDF 也会被保留下来。
 
 ```bash
 python3 scripts/fetch_arxiv.py "<query>" --output-dir <base_dir>
+```
+
+输出目录结构：
+
+```
+<base_dir>/
+  <paper_name>/
+    paper.pdf        # PDF（总是尝试下载）
+    paper.json       # 元数据
+    latex/           # LaTeX 源码（如果有）
+    code/            # 代码仓库（后续步骤）
 ```
 
 ### 2. 查找并克隆代码仓库
@@ -191,6 +205,6 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 | 情况 | 处理方式 |
 |------|----------|
 | 论文不在 arXiv 上 | 告诉用户，问他有没有 URL |
-| 有 arXiv 但只有 PDF，没有 LaTeX 源码 | 报告无法处理，停止 |
+| 有 arXiv 但只有 PDF，没有 LaTeX 源码 | PDF 已下载，报告 LaTeX 不可用，但 PDF 仍可使用 |
 | GitHub 搜不到仓库 | 问用户有没有 URL |
 | LaTeX 或代码缺一个 | 无法审计，解释原因 |
