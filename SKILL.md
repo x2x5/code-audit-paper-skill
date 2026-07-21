@@ -9,9 +9,65 @@ description: Given a paper title, fetches LaTeX source from arXiv and code from 
 
 从 arXiv 下载 PDF 和 LaTeX 源码，从 GitHub 找到代码仓库，然后从 4 个维度审计论文。
 
+---
+
+## 第 0 步：环境检查（每次审计前必须先做）
+
+**任何操作之前，先检查当前环境里装了哪些工具、正确的命令名是什么。**
+不同系统差异很大（`python` vs `python3`、`pip` vs `pip3`、有没有 `git`、有没有 `curl`），
+不检查就直接跑命令会导致无谓的报错。
+
+### 必须检查的项目
+
+逐一运行以下命令，把结果记下来：
+
+```bash
+# 1. Python：到底是 python 还是 python3？
+python --version 2>&1 || echo "❌ python 不可用"
+python3 --version 2>&1 || echo "❌ python3 不可用"
+
+# 2. pip：安装依赖用哪个？
+pip --version 2>&1 || echo "❌ pip 不可用"
+pip3 --version 2>&1 || echo "❌ pip3 不可用"
+
+# 3. Git：克隆代码仓库需要
+git --version 2>&1 || echo "❌ git 不可用"
+
+# 4. 网络工具：curl 还是 wget？（下载文件用，至少有一个就行）
+curl --version 2>&1 | head -1 || echo "❌ curl 不可用"
+wget --version 2>&1 | head -1 || echo "❌ wget 不可用"
+
+# 5. 脚本依赖：audit 脚本需要哪些 Python 包？
+#    先确认可用的 Python 命令，再检查依赖
+<可用的python命令> -c "import json, os, re, sys, argparse, collections; print('✅ 核心依赖就绪')" 2>&1
+
+# 6. 操作系统
+uname -s 2>&1 || echo "Windows"
+```
+
+### 记下结果，后续步骤全部使用正确命令
+
+检查完后，你应该清楚：
+- **Python 命令**是 `python` 还是 `python3`？（后续所有脚本命令用这个）
+- **pip 命令**是 `pip` 还是 `pip3`？（安装缺失依赖用这个）
+- **Git 有没有**？（没有的话无法克隆代码仓库 → 审计中止）
+- **下载工具**用 `curl` 还是 `wget`？
+- **操作系统**是 macOS / Linux / Windows？（路径和 shell 语法有区别）
+
+> ⚠️ **如果 git 不可用**：直接告诉用户"需要安装 git 才能克隆代码仓库"，审计中止。
+>
+> ⚠️ **如果 Python 不可用**：直接告诉用户"需要安装 Python 3.8+ 才能运行审计脚本"，审计中止。
+>
+> ⚠️ **如果缺少 Python 依赖包**：用正确的 pip 命令安装，例如 `<pip> install requests`。
+
+---
+
 ## 准备工作
 
-解析用户的输入（arXiv ID / 论文标题 / 完整 URL），确定输出目录和论文名，然后按顺序执行：
+环境检查通过后，解析用户的输入（arXiv ID / 论文标题 / 完整 URL），确定输出目录和论文名，然后按顺序执行：
+
+> 📌 **以下所有命令中的 `python3` 都表示你在第 0 步中确定的正确 Python 命令**
+> （可能是 `python` 或 `python3`，根据你的环境替换）。`git`、`pip`、`curl` 同理。
 
 ### 1. 下载 PDF 和 LaTeX 源码
 
@@ -74,9 +130,19 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
     --output-dir <base_dir>/<paper_name>/audit
 ```
 
-`audit.py` 会生成一份初步报告（自动提取的 claims、代码结构分析、关键词匹配）。
-用这份报告做起点，然后按下面 4 个 Section 逐条检查 ——
-自动报告只是辅助，你需要亲自看 LaTeX 源码和代码来给出准确判断。
+`audit.py` 会生成一个自包含的 **HTML 网页** `audit/audit_report.html`（浏览器直接打开即可查看），内容包括：
+- 论文概览（方法数、声明数、数据集、表格/图数量等）
+- 代码结构分析（语言、文件统计、能力检测）
+- 论文与代码交叉比对（方法匹配、数据集、指标、实验覆盖、代码质量）
+- 提取的论文声明详情
+- 关键源文件清单
+- 自动审计总结
+
+所有数据也以 JSON 格式嵌入在 HTML 的 `<script>` 标签中，方便程序化读取。
+
+用这份 HTML 报告做起点，然后按下面 4 个 Section 逐条检查 ——
+自动报告只是辅助，你需要亲自看 LaTeX 源码和代码来给出准确判断，
+**并把这些判断直接写入 `audit_report.html` 中**（在对应 section 的预留位置填写）。
 
 ---
 
@@ -120,7 +186,8 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 #### 输出一份方法对比文档
 
-把论文里的每个方法/模块描述和代码里的实际实现对照着写出来，存为 `audit/method_vs_code.md`。
+把论文里的每个方法/模块描述和代码里的实际实现对照着写出来，
+写入 `audit/audit_report.html` 中（在「方法一致性」section 的预留位置）。
 
 格式：
 
@@ -195,27 +262,30 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 ### 最终汇报
 
+审计完成后，`audit/audit_report.html` 就是一个可以直接在浏览器中打开的完整报告网页。
+你需要确保以下内容都已填写完整：
+
 ```
-## 审计总结
+## 审计报告检查清单
 
-### Section 0：可复现性
-- 数据集：ImageNet（有下载脚本 ✅）、COCO（README 给了链接 ✅）
-- 预训练权重：自动下载 ✅
-- Baseline：5 个 baseline 中 2 个有实现 ⚠️
+### Section 0：可复现性（填入 audit_report.html 对应位置）
+- 数据集：列出所有数据集及代码中是否有下载方式
+- 预训练权重：论文是否用了、代码是否提供
+- Baseline：列出所有 baseline，标记哪些有代码实现
 
-### Section 1：方法实现
-- 整体架构一致 ✅
-- Attention 机制不一致 ❌
-  → 论文描述的是 8 头 attention，代码实现是 12 头
+### Section 1：方法实现（方法对比表格填入 audit_report.html）
+- 整体架构一致性
+- 各模块/组件一致性
+- 论文夸大 vs 代码实际的差异
 
-### Section 2：实验细节
-- 超参数与论文一致 ✅
-- 数据增强不一致 ⚠️
-  → 论文用的是 RandomResizedCrop，代码用的是 CenterCrop
+### Section 2：实验细节（填入 audit_report.html）
+- 超参数一致性
+- 数据预处理一致性
+- 训练/评估细节一致性
 
-### Section 3：实验覆盖率
-- 5 个实验中 3 个有对应代码实现 ⚠️
-- 2 个实验完全找不到代码 ❌
+### Section 3：实验覆盖率（实验对照表填入 audit_report.html）
+- 论文每个实验 → 代码对应文件
+- 标记缺失的实验
 ```
 
 ---

@@ -6,92 +6,138 @@
 <title>code-audit-paper — 审计流程图</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
-    line-height: 1.6;
+    background: #f8fafc;
+    color: #1e293b;
+    line-height: 1.7;
   }
 
-  /* top bar */
+  /* ── 顶栏 ── */
   .topbar {
-    background: #1e293b;
-    padding: 14px 24px;
+    background: #ffffff;
+    padding: 14px 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 100;
-    border-bottom: 1px solid #334155;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
-  .topbar .logo { font-weight: 700; font-size: 1rem; color: #e2e8f0; }
-  .topbar .logo span { color: #818cf8; }
+  .topbar .logo { font-weight: 700; font-size: 1rem; color: #1e293b; }
+  .topbar .logo span { color: #6366f1; }
   .lang-toggle {
-    background: none;
-    border: 1px solid #475569;
-    color: #94a3b8;
-    padding: 6px 14px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 6px 16px;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-family: inherit;
     transition: all 0.2s;
   }
-  .lang-toggle:hover { background: #334155; color: #e2e8f0; }
+  .lang-toggle:hover { background: #e2e8f0; color: #1e293b; }
 
-  .container { max-width: 820px; margin: 0 auto; padding: 48px 24px 80px; }
+  /* ── 主容器 ── */
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
   .lang { display: none; }
   .lang.active { display: block; }
 
-  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 6px; }
-  .subtitle { text-align: center; color: #94a3b8; font-size: 0.95rem; margin-bottom: 48px; }
+  h1 {
+    text-align: center;
+    font-size: 1.9rem;
+    margin-bottom: 6px;
+    color: #0f172a;
+    font-weight: 800;
+  }
+  .subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 48px;
+  }
 
-  /* flowchart layout */
+  /* ── 流程图容器 ── */
   .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
 
-  /* card */
+  /* ── 卡片 ── */
   .card {
-    background: #1e293b;
-    border: 1px solid #334155;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 14px;
-    padding: 20px 24px;
+    padding: 22px 26px;
     width: 100%;
-    max-width: 520px;
+    max-width: 560px;
     position: relative;
-    transition: box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s, transform 0.15s;
   }
-  .card:hover { box-shadow: 0 0 0 2px #6366f140; }
+  .card:hover {
+    box-shadow: 0 4px 16px rgba(99,102,241,0.12);
+    transform: translateY(-1px);
+  }
   .card .title {
     font-weight: 700;
-    font-size: 1rem;
-    margin-bottom: 6px;
+    font-size: 1.05rem;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    color: #0f172a;
   }
-  .card .title .icon { width: 28px; height: 28px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
-  .card .desc { font-size: 0.88rem; color: #94a3b8; }
-  .card .code { font-size: 0.78rem; color: #64748b; margin-top: 6px; font-family: monospace; }
+  .card .title .icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    background: #eef2ff;
+  }
+  .card .desc {
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 4px;
+  }
+  .card .detail {
+    font-size: 0.83rem;
+    color: #94a3b8;
+    margin-top: 4px;
+  }
+  .card .code {
+    font-size: 0.78rem;
+    color: #6366f1;
+    margin-top: 8px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    background: #f1f5f9;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
 
-  /* step number badge */
+  /* ── 步骤编号圆标 ── */
   .step-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px; height: 22px;
+    width: 26px; height: 26px;
     border-radius: 50%;
     background: #6366f1;
     color: #fff;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
     flex-shrink: 0;
   }
 
-  /* arrow going down */
+  /* ── 向下箭头 ── */
   .arrow-down {
     width: 2px;
-    height: 36px;
+    height: 40px;
     background: linear-gradient(to bottom, #6366f1, #818cf8);
     position: relative;
   }
@@ -105,42 +151,39 @@
     border-top-color: #818cf8;
   }
 
-  /* branch row */
+  /* ── 分支行 ── */
   .branch-row {
     display: flex;
-    gap: 24px;
+    gap: 28px;
     width: 100%;
-    max-width: 640px;
+    max-width: 660px;
     position: relative;
     justify-content: center;
   }
 
-  /* branch arms */
+  /* 分支横线 + 竖线 */
   .branch-row::before {
     content: '';
     position: absolute;
-    top: -36px;
+    top: -40px;
     left: 50%;
     width: 2px;
-    height: 36px;
-    background: #475569;
+    height: 40px;
+    background: #cbd5e1;
   }
   .branch-row::after {
     content: '';
     position: absolute;
-    top: -36px;
-    left: 20%;
-    width: 60%;
+    top: -40px;
+    left: 18%;
+    width: 64%;
     height: 2px;
-    background: #475569;
-  }
-  .branch-arm-left::before, .branch-arm-right::before {
-    display: none;
+    background: #cbd5e1;
   }
 
   .branch-card {
     flex: 1;
-    max-width: 280px;
+    max-width: 290px;
   }
   .branch-card .card {
     max-width: 100%;
@@ -148,7 +191,7 @@
   }
   .branch-label {
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     font-weight: 700;
     color: #f59e0b;
     margin-bottom: 8px;
@@ -156,11 +199,11 @@
     text-transform: uppercase;
   }
 
-  /* merge arrow */
+  /* ── 汇合箭头 ── */
   .merge-arrow {
     width: 2px;
-    height: 36px;
-    background: #475569;
+    height: 40px;
+    background: #cbd5e1;
     position: relative;
   }
   .merge-arrow::after {
@@ -170,14 +213,14 @@
     left: 50%;
     transform: translateX(-50%);
     border: 6px solid transparent;
-    border-top-color: #475569;
+    border-top-color: #cbd5e1;
   }
 
-  /* split arrow (small horizontal + vertical for branch merge) */
+  /* ── 分叉汇合竖线 ── */
   .split-arrow {
     width: 100%;
-    max-width: 640px;
-    height: 36px;
+    max-width: 660px;
+    height: 40px;
     position: relative;
   }
   .split-arrow::before {
@@ -185,68 +228,74 @@
     position: absolute;
     top: 0; left: 50%;
     width: 2px; height: 100%;
-    background: #475569;
+    background: #cbd5e1;
   }
 
-  /* stop card */
+  /* ── 停止卡片 ── */
   .card.stop {
-    border-color: #dc2626;
-    background: #2d1b1b;
+    border-color: #fecaca;
+    background: #fef2f2;
   }
-  .card.stop .title { color: #fca5a5; }
+  .card.stop .title { color: #dc2626; }
+  .card.stop .desc { color: #991b1b; }
+  .card.stop .detail { color: #b91c1c; }
 
-  /* branch arrows from parent */
+  /* ── 分支从父卡片引出的横竖线 ── */
   .arrow-branch {
     width: 100%;
-    max-width: 640px;
-    height: 36px;
+    max-width: 660px;
+    height: 40px;
     position: relative;
   }
   .arrow-branch::before {
     content: '';
     position: absolute;
     top: 0; left: 50%;
-    width: 2px; height: 20px;
-    background: #6366f1;
+    width: 2px; height: 22px;
+    background: #818cf8;
   }
   .arrow-branch::after {
     content: '';
     position: absolute;
-    top: 20px; left: 20%;
-    width: 60%;
+    top: 22px; left: 18%;
+    width: 64%;
     height: 2px;
-    background: #475569;
+    background: #cbd5e1;
   }
 
-  /* sub-flow (audit sections) */
+  /* ── 审计子维度卡片 ── */
   .sub-flow {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     width: 100%;
-    max-width: 640px;
+    max-width: 660px;
     flex-wrap: wrap;
     justify-content: center;
   }
   .sub-card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
-    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 18px;
     flex: 1;
-    min-width: 130px;
-    max-width: 180px;
+    min-width: 140px;
+    max-width: 190px;
     text-align: center;
-    transition: box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s, transform 0.15s;
   }
-  .sub-card:hover { box-shadow: 0 0 0 2px #6366f140; }
-  .sub-card .sub-icon { font-size: 1.3rem; margin-bottom: 4px; }
-  .sub-card .sub-title { font-weight: 600; font-size: 0.85rem; }
-  .sub-card .sub-desc { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+  .sub-card:hover {
+    box-shadow: 0 4px 14px rgba(99,102,241,0.10);
+    transform: translateY(-1px);
+  }
+  .sub-card .sub-icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .sub-card .sub-title { font-weight: 700; font-size: 0.88rem; color: #0f172a; }
+  .sub-card .sub-desc { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
 
   .arrow-sub-down {
     width: 2px;
-    height: 24px;
-    background: #475569;
+    height: 28px;
+    background: #cbd5e1;
     position: relative;
   }
   .arrow-sub-down::after {
@@ -256,33 +305,34 @@
     left: 50%;
     transform: translateX(-50%);
     border: 5px solid transparent;
-    border-top-color: #475569;
+    border-top-color: #cbd5e1;
   }
 
-  /* divider */
+  /* ── 分隔文字 ── */
   .section-divider {
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 700;
     color: #6366f1;
     letter-spacing: 2px;
-    margin: 8px 0;
+    margin: 10px 0;
     text-transform: uppercase;
   }
 
+  /* ── 页脚 ── */
   .footer {
     text-align: center;
     font-size: 0.85rem;
-    color: #64748b;
+    color: #94a3b8;
     margin-top: 48px;
     padding-top: 24px;
-    border-top: 1px solid #334155;
+    border-top: 1px solid #e2e8f0;
   }
-  .footer a { color: #818cf8; text-decoration: none; }
+  .footer a { color: #6366f1; text-decoration: none; }
   .footer a:hover { text-decoration: underline; }
 
-  /* responsive */
-  @media (max-width: 600px) {
+  /* ── 响应式 ── */
+  @media (max-width: 640px) {
     .branch-row { flex-direction: column; align-items: center; }
     .branch-row::after { display: none; }
     .branch-card { max-width: 100%; width: 100%; }
@@ -300,135 +350,243 @@
 
 <div class="container">
 
-<!-- ========== ENGLISH ========== -->
+<!-- ═══════════════════════════════════════════ -->
+<!--               ENGLISH                      -->
+<!-- ═══════════════════════════════════════════ -->
 <div class="lang active" id="lang-en">
 
 <h1>🔍 Audit Flow</h1>
-<p class="subtitle">code-audit-paper · from paper title to audit report</p>
+<p class="subtitle">code-audit-paper — from a paper title to a full audit report</p>
 
 <div class="flow">
 
-  <!-- STEP 1 -->
+  <!-- ═══ STEP 1: Input ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">1</span> Input</div>
-    <div class="desc">arXiv ID &nbsp;·&nbsp; Paper title &nbsp;·&nbsp; Full URL</div>
-    <div class="code">/code-audit-paper &lt;query&gt;</div>
+    <div class="title"><span class="step-badge">1</span> 📥 Parse the Input</div>
+    <div class="desc">
+      You give the tool a paper reference — it can be an <strong>arXiv ID</strong> (like <code>2301.12345</code>),
+      a <strong>full paper title</strong>, or a <strong>complete arXiv URL</strong>.
+      The tool automatically figures out which paper you mean and creates a clean, readable folder name
+      for it (for example, the method acronym like "ResNet" or the first six words of the title).
+    </div>
+    <div class="detail">
+      💬 This is the entry point: just tell the tool which paper to audit, and it handles the rest.
+      No need to manually download anything or create folders.
+    </div>
+    <div class="code">/code-audit-paper &lt;paper title or arXiv ID or URL&gt;</div>
   </div>
   <div class="arrow-down"></div>
 
-  <!-- STEP 2 -->
+  <!-- ═══ STEP 2: Download ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">2</span> Download LaTeX from arXiv</div>
-    <div class="desc">Fetch the LaTeX source bundle via the arXiv API.</div>
-    <div class="code">fetch_arxiv.py "&lt;query&gt;" -o &lt;base_dir&gt;</div>
+    <div class="title"><span class="step-badge">2</span> 📄 Download the Paper from arXiv</div>
+    <div class="desc">
+      The tool reaches out to <strong>arXiv.org</strong> through its official API.
+      It always tries to get <strong>two things</strong>:
+    </div>
+    <div class="detail">
+      <strong>① The PDF</strong> — the typeset paper as you'd read it online. Almost always available.<br>
+      <strong>② The LaTeX source bundle</strong> — the raw <code>.tex</code> files the authors wrote.
+      This is the key part: without the LaTeX source, we can't do a deep audit (the PDF alone
+      doesn't tell us what the authors really wrote before typesetting it).
+    </div>
+    <div class="detail" style="margin-top:6px;">
+      📁 Everything lands in a folder like <code>&lt;paper_name&gt;/paper.pdf</code> and
+      <code>&lt;paper_name&gt;/latex/</code>.
+    </div>
+    <div class="code">python3 scripts/fetch_arxiv.py "&lt;query&gt;" --output-dir &lt;base_dir&gt;</div>
   </div>
   <div class="arrow-branch"></div>
 
   <!-- BRANCH: LaTeX available? -->
   <div class="branch-row">
     <div class="branch-card">
-      <div class="branch-label">✅ Available</div>
+      <div class="branch-label">✅ LaTeX source found</div>
       <div class="card">
-        <div class="title">📄 LaTeX saved</div>
-        <div class="desc">Source extracted to <code>latex/</code></div>
+        <div class="title">📄 Source saved</div>
+        <div class="desc">
+          The LaTeX bundle was downloaded and extracted into the <code>latex/</code> folder.
+          This gives us access to every <code>.tex</code> and <code>.bib</code> file — we can now
+          read the paper's exact source, find GitHub links in the references, and inspect
+          every claim the authors made.
+        </div>
       </div>
     </div>
     <div class="branch-card">
-      <div class="branch-label">❌ Not available</div>
+      <div class="branch-label">❌ No LaTeX source</div>
       <div class="card stop">
-        <div class="title">⛔ Stop</div>
-        <div class="desc">arXiv has no LaTeX source. PDF-only papers cannot be audited.</div>
+        <div class="title">⛔ Cannot proceed</div>
+        <div class="desc">
+          arXiv only has the PDF — no <code>.tex</code> files available.
+          Without the raw LaTeX source, we can't automatically scan for code repository links
+          or parse the paper's claims. The PDF alone is not enough for a reliable audit.
+        </div>
+        <div class="detail">
+          💡 The PDF is still saved. You can read it manually, but an automated deep audit
+          is not possible at this point.
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- merge from yes branch -->
   <div class="split-arrow"></div>
 
-  <!-- STEP 3 -->
+  <!-- ═══ STEP 3: Find Code ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">3</span> Find Code Repository</div>
-    <div class="desc">Scan LaTeX for GitHub URLs, or search GitHub by title.</div>
-    <div class="code">fetch_code.py "&lt;query&gt;" -o &lt;base_dir&gt; --latex-dir &lt;latex&gt;</div>
+    <div class="title"><span class="step-badge">3</span> 🔗 Find &amp; Clone the Code Repository</div>
+    <div class="desc">
+      This is the detective work. The tool <strong>reads every LaTeX file</strong>
+      (and bibliography <code>.bib</code> files) to find <strong>GitHub links</strong>.
+      It looks inside <code>\url{}</code>, <code>\href{}{}</code>, and nearby text to
+      identify which link points to the <strong>actual code repository</strong> for this paper.
+    </div>
+    <div class="detail">
+      🔎 The tool is smart enough to skip links to datasets, dependency libraries,
+      personal homepages, or unrelated repositories — it focuses on the paper's own
+      implementation code. If no link is found in the LaTeX, it falls back to searching
+      GitHub by paper title and shows you the top matches to pick from.
+    </div>
+    <div class="detail" style="margin-top:6px;">
+      📦 Once the right repo is identified, the tool <strong>clones it</strong> into
+      <code>&lt;paper_name&gt;/code/</code>. It then inspects the cloned repo to make sure
+      it actually contains code (not just a README or empty project).
+    </div>
+    <div class="code">python3 scripts/fetch_code.py "&lt;query&gt;" --output-dir &lt;base&gt; --latex-dir &lt;latex&gt;</div>
   </div>
   <div class="arrow-branch"></div>
 
   <!-- BRANCH: repo found? -->
   <div class="branch-row">
     <div class="branch-card">
-      <div class="branch-label">✅ Repo found</div>
+      <div class="branch-label">✅ Repository found</div>
       <div class="card">
-        <div class="title">📦 Cloned</div>
-        <div class="desc">Code saved to <code>code/</code></div>
+        <div class="title">📦 Code cloned</div>
+        <div class="desc">
+          The codebase has been downloaded into <code>code/</code>. All source files,
+          configs, and scripts are now available for the audit.
+        </div>
       </div>
-      <!-- sub-branch: has code? -->
+      <!-- sub-branch: actual code? -->
       <div class="arrow-sub-down"></div>
       <div class="branch-row" style="max-width:100%;">
-        <div class="branch-card" style="max-width:130px;">
-          <div class="branch-label" style="font-size:0.65rem;">✅ Has code</div>
-          <div class="card" style="padding:10px 12px;">
-            <div class="title" style="font-size:0.85rem;">▶ Proceed</div>
+        <div class="branch-card" style="max-width:140px;">
+          <div class="branch-label" style="font-size:0.68rem;">✅ Has real code</div>
+          <div class="card" style="padding:10px 14px;">
+            <div class="title" style="font-size:0.88rem;">▶ Continue</div>
+            <div class="detail" style="font-size:0.73rem;">
+              The repo contains Python source files, model definitions, training scripts,
+              or config files — it's a genuine paper implementation.
+            </div>
           </div>
         </div>
-        <div class="branch-card" style="max-width:130px;">
-          <div class="branch-label" style="font-size:0.65rem;color:#dc2626;">❌ Empty repo</div>
-          <div class="card stop" style="padding:10px 12px;">
-            <div class="title" style="font-size:0.85rem;">⛔ Stop</div>
-            <div class="desc" style="font-size:0.75rem;">README-only, no source code</div>
+        <div class="branch-card" style="max-width:140px;">
+          <div class="branch-label" style="font-size:0.68rem;color:#dc2626;">❌ Empty / docs-only</div>
+          <div class="card stop" style="padding:10px 14px;">
+            <div class="title" style="font-size:0.88rem;">⛔ Stop</div>
+            <div class="desc" style="font-size:0.78rem;">
+              The repo is just a README, a placeholder, or documentation with no actual
+              implementation code. There is nothing to audit.
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div class="branch-card">
-      <div class="branch-label">❌ Not found</div>
+      <div class="branch-label">❌ No repo found</div>
       <div class="card stop">
         <div class="title">⛔ Stop</div>
-        <div class="desc">Ask user for a URL, or report that code is unavailable.</div>
+        <div class="desc">
+          No GitHub link was found in the LaTeX, and the GitHub search didn't return
+          a matching repository. At this point you can manually provide a repository URL,
+          or conclude that the paper's code is not publicly available.
+        </div>
       </div>
     </div>
   </div>
 
   <div class="split-arrow"></div>
 
-  <!-- STEP 4 -->
+  <!-- ═══ STEP 4: Audit ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">4</span> Run Audit</div>
-    <div class="desc">Parse LaTeX claims, analyze code, generate report.</div>
-    <div class="code">audit.py &lt;latex&gt; &lt;code&gt; -o &lt;audit&gt;</div>
+    <div class="title"><span class="step-badge">4</span> 🧪 Run the Audit Engine</div>
+    <div class="desc">
+      Now the real work begins. The audit script reads the LaTeX source to <strong>extract every
+      claim</strong> the paper makes, then compares each claim against the <strong>actual code</strong>.
+      It produces a detailed report covering <strong>four dimensions</strong>:
+    </div>
+    <div class="code">python3 scripts/audit.py &lt;latex_dir&gt; &lt;code_dir&gt; --output-dir &lt;audit&gt;</div>
   </div>
   <div class="arrow-down"></div>
 
-  <!-- 4 subsections -->
-  <div class="section-divider">▼ 4 Audit Dimensions ▼</div>
+  <div class="section-divider">▼ Four Audit Dimensions ▼</div>
   <div class="sub-flow">
+
     <div class="sub-card">
       <div class="sub-icon">🔁</div>
       <div class="sub-title">Reproducibility</div>
-      <div class="sub-desc">Dataset, weights, baselines</div>
+      <div class="sub-desc">
+        Are the datasets available? Are pretrained weights provided or linked?
+        Are the baseline methods actually implemented, or just numbers copied from
+        another paper? This answers: "Can I run this experiment myself?"
+      </div>
     </div>
+
     <div class="sub-card">
       <div class="sub-icon">🧩</div>
       <div class="sub-title">Method Consistency</div>
-      <div class="sub-desc">Paper vs code architecture</div>
+      <div class="sub-desc">
+        Line-by-line comparison: what the paper <em>says</em> the model does
+        vs. what the code <em>actually</em> does. Catches exaggerations like
+        "novel multi-head attention" that turns out to be a standard 8-head attention.
+      </div>
     </div>
+
     <div class="sub-card">
       <div class="sub-icon">🔬</div>
       <div class="sub-title">Experiment Details</div>
-      <div class="sub-desc">Hyperparams, preprocessing</div>
+      <div class="sub-desc">
+        Checks if the training hyperparameters (learning rate, batch size, optimizer),
+        data preprocessing, and evaluation metrics from the paper match what's in the
+        code's config files and scripts.
+      </div>
     </div>
+
     <div class="sub-card">
       <div class="sub-icon">📊</div>
       <div class="sub-title">Code Coverage</div>
-      <div class="sub-desc">Which experiments have code?</div>
+      <div class="sub-desc">
+        For every experiment, table, and figure in the paper: is there corresponding
+        code to reproduce it? Flags experiments that are described in the paper but
+        have no implementation at all.
+      </div>
     </div>
+
   </div>
   <div class="arrow-sub-down"></div>
 
-  <!-- STEP 5 -->
+  <!-- ═══ STEP 5: QA Pages ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">5</span> Generate Q&amp;A Pages</div>
-    <div class="desc">Default: translate Introduction into three-column HTML (EN · plain · ZH). More pages for follow-up questions.</div>
-    <div class="code">qa/introduction.html &nbsp;·&nbsp; qa/experiments.html &nbsp;·&nbsp; …</div>
+    <div class="title"><span class="step-badge">5</span> 💬 Generate Human-Readable Q&amp;A Pages</div>
+    <div class="desc">
+      After the audit, the tool <strong>automatically translates the paper's Introduction</strong>
+      into a three-column HTML page that you can open in any browser:
+    </div>
+    <div class="detail">
+      <strong>Left column (🔤)</strong> — the original English text, paragraph by paragraph.<br>
+      <strong>Middle column (💡)</strong> — a "plain language" version that explains
+      each paragraph in simple terms. Technical jargon gets parenthetical explanations,
+      and complex ideas are broken down with analogies. Aimed at someone with basic AI
+      knowledge (like an undergraduate CS student), not an expert in this specific subfield.<br>
+      <strong>Right column (🀄)</strong> — an accurate Chinese translation.
+    </div>
+    <div class="detail" style="margin-top:6px;">
+      📝 Each paragraph becomes a <strong>card</strong> on the page. You can scroll through
+      and read the paper like an annotated, bilingual guide. If you have follow-up questions
+      about the paper (like "explain the method" or "what does Table 3 show?"), you can ask,
+      and additional Q&amp;A pages will be created in the <code>qa/</code> folder — each
+      question gets its own HTML page in the same card-based style.
+    </div>
+    <div class="code">qa/introduction.html &nbsp;·&nbsp; qa/method.html &nbsp;·&nbsp; qa/experiments.html &nbsp;·&nbsp; …</div>
   </div>
 
 </div>
@@ -439,133 +597,231 @@
 </div>
 
 
-<!-- ========== CHINESE ========== -->
+<!-- ═══════════════════════════════════════════ -->
+<!--               中文                          -->
+<!-- ═══════════════════════════════════════════ -->
 <div class="lang" id="lang-zh">
 
 <h1>🔍 审计流程</h1>
-<p class="subtitle">code-audit-paper · 从论文标题到审计报告</p>
+<p class="subtitle">code-audit-paper — 从一篇论文标题到一份完整审计报告</p>
 
 <div class="flow">
 
-  <!-- STEP 1 -->
+  <!-- ═══ 第 1 步：解析输入 ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">1</span> 输入</div>
-    <div class="desc">arXiv ID · 论文标题 · 完整 URL</div>
-    <div class="code">/code-audit-paper &lt;查询&gt;</div>
+    <div class="title"><span class="step-badge">1</span> 📥 解析你的输入</div>
+    <div class="desc">
+      你给工具一个论文引用——可以是 <strong>arXiv ID</strong>（比如 <code>2301.12345</code>）、
+      <strong>论文完整标题</strong>，或者 <strong>arXiv 完整链接</strong>。
+      工具会自动识别你要审的是哪篇论文，并给它起一个干净易读的文件夹名
+      （比如用方法缩写 "ResNet"，或者取标题前六个词）。
+    </div>
+    <div class="detail">
+      💬 这就是入口：你只要告诉工具要审计哪篇论文，剩下的全部自动完成。
+      不需要手动下载任何东西，也不需要手动建文件夹。
+    </div>
+    <div class="code">/code-audit-paper &lt;论文标题 或 arXiv ID 或 URL&gt;</div>
   </div>
   <div class="arrow-down"></div>
 
-  <!-- STEP 2 -->
+  <!-- ═══ 第 2 步：下载论文 ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">2</span> 下载 LaTeX 源码</div>
-    <div class="desc">通过 arXiv API 获取 LaTeX 源码包。</div>
-    <div class="code">fetch_arxiv.py "&lt;查询&gt;" -o &lt;输出目录&gt;</div>
+    <div class="title"><span class="step-badge">2</span> 📄 从 arXiv 下载论文资料</div>
+    <div class="desc">
+      工具通过 arXiv 官方 API 下载论文，每次都会尝试获取<strong>两种文件</strong>：
+    </div>
+    <div class="detail">
+      <strong>① PDF 文件</strong>——也就是你在 arXiv 网页上看到的那种排版好的论文。几乎总是能下载到。<br>
+      <strong>② LaTeX 源码包</strong>——作者提交的原始 <code>.tex</code> 文件。
+      这是关键：没有 LaTeX 源码就做不了深度审计（光看 PDF 根本不知道作者真正写了什么、
+      有没有在排版时隐藏细节）。
+    </div>
+    <div class="detail" style="margin-top:6px;">
+      📁 所有文件都会放到 <code>&lt;论文名&gt;/paper.pdf</code> 和 <code>&lt;论文名&gt;/latex/</code> 目录下。
+    </div>
+    <div class="code">python3 scripts/fetch_arxiv.py "&lt;查询&gt;" --output-dir &lt;输出目录&gt;</div>
   </div>
   <div class="arrow-branch"></div>
 
-  <!-- BRANCH: LaTeX available? -->
+  <!-- 分支：有没有 LaTeX？ -->
   <div class="branch-row">
     <div class="branch-card">
-      <div class="branch-label">✅ 有 LaTeX</div>
+      <div class="branch-label">✅ 有 LaTeX 源码</div>
       <div class="card">
         <div class="title">📄 源码已保存</div>
-        <div class="desc">解压到 <code>latex/</code> 目录</div>
+        <div class="desc">
+          LaTeX 源码包已下载并解压到 <code>latex/</code> 文件夹。现在我们可以查看
+          每一份 <code>.tex</code> 和 <code>.bib</code> 文件——阅读论文的真正源文本、
+          在参考文献中搜索 GitHub 链接、逐一检查作者的每一项声明。
+        </div>
       </div>
     </div>
     <div class="branch-card">
-      <div class="branch-label">❌ 没有 LaTeX</div>
+      <div class="branch-label">❌ 没有 LaTeX 源码</div>
       <div class="card stop">
-        <div class="title">⛔ 停止</div>
-        <div class="desc">arXiv 只有 PDF，没有 LaTeX 源码。无法审计。</div>
+        <div class="title">⛔ 无法继续</div>
+        <div class="desc">
+          arXiv 上只有 PDF，没有 <code>.tex</code> 源文件。没有原始 LaTeX 源码，
+          就无法自动扫描代码仓库链接，也无法精确解析论文中的声明。
+          单靠 PDF 远远不足以做可靠审计。
+        </div>
+        <div class="detail">
+          💡 PDF 仍然会保存下来。你可以手动阅读，但自动深度审计到此为止。
+        </div>
       </div>
     </div>
   </div>
 
   <div class="split-arrow"></div>
 
-  <!-- STEP 3 -->
+  <!-- ═══ 第 3 步：找代码 ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">3</span> 查找代码仓库</div>
-    <div class="desc">扫描 LaTeX 找 GitHub 链接，或按标题搜 GitHub。</div>
-    <div class="code">fetch_code.py "&lt;查询&gt;" -o &lt;输出&gt; --latex-dir &lt;latex&gt;</div>
+    <div class="title"><span class="step-badge">3</span> 🔗 查找并克隆代码仓库</div>
+    <div class="desc">
+      这是侦探工作。工具会<strong>逐篇阅读所有 LaTeX 文件</strong>（包括参考文献
+      <code>.bib</code> 文件），从中找出 <strong>GitHub 链接</strong>。
+      它会检查 <code>\url{}</code>、<code>\href{}{}</code> 以及链接周围的文字，
+      判断哪个链接指向的是<strong>论文真正的代码仓库</strong>。
+    </div>
+    <div class="detail">
+      🔎 工具很聪明，会自动跳过数据集仓库、依赖库链接、作者个人主页等无关链接——
+      只关注论文自己的实现代码。如果 LaTeX 里找不到任何 GitHub 链接，会自动转到
+      GitHub 上按论文标题搜索，把匹配度最高的几个仓库列出来让你选。
+    </div>
+    <div class="detail" style="margin-top:6px;">
+      📦 确定目标仓库后，工具会把它<strong>克隆</strong>到 <code>&lt;论文名&gt;/code/</code>
+      目录下，然后检查克隆下来的内容——确认里面确实有代码（不只是 README 或空项目）。
+    </div>
+    <div class="code">python3 scripts/fetch_code.py "&lt;查询&gt;" --output-dir &lt;目录&gt; --latex-dir &lt;latex&gt;</div>
   </div>
   <div class="arrow-branch"></div>
 
-  <!-- BRANCH: repo found? -->
+  <!-- 分支：找到仓库了吗？ -->
   <div class="branch-row">
     <div class="branch-card">
-      <div class="branch-label">✅ 找到仓库</div>
+      <div class="branch-label">✅ 找到了仓库</div>
       <div class="card">
-        <div class="title">📦 已克隆</div>
-        <div class="desc">代码保存到 <code>code/</code></div>
+        <div class="title">📦 代码已克隆</div>
+        <div class="desc">
+          代码库已下载到 <code>code/</code> 目录。所有源文件、配置文件、
+          训练脚本现在都可以审计。
+        </div>
       </div>
+      <!-- 子分支：有没有实际代码？ -->
       <div class="arrow-sub-down"></div>
       <div class="branch-row" style="max-width:100%;">
-        <div class="branch-card" style="max-width:130px;">
-          <div class="branch-label" style="font-size:0.65rem;">✅ 有代码</div>
-          <div class="card" style="padding:10px 12px;">
-            <div class="title" style="font-size:0.85rem;">▶ 继续</div>
+        <div class="branch-card" style="max-width:140px;">
+          <div class="branch-label" style="font-size:0.68rem;">✅ 有实际代码</div>
+          <div class="card" style="padding:10px 14px;">
+            <div class="title" style="font-size:0.88rem;">▶ 继续审计</div>
+            <div class="detail" style="font-size:0.73rem;">
+              仓库包含 Python 源文件、模型定义、训练脚本或配置文件——这是一个真正的
+              论文复现代码库，可以继续审计。
+            </div>
           </div>
         </div>
-        <div class="branch-card" style="max-width:130px;">
-          <div class="branch-label" style="font-size:0.65rem;color:#dc2626;">❌ 空仓库</div>
-          <div class="card stop" style="padding:10px 12px;">
-            <div class="title" style="font-size:0.85rem;">⛔ 停止</div>
-            <div class="desc" style="font-size:0.75rem;">只有 README，无实际代码</div>
+        <div class="branch-card" style="max-width:140px;">
+          <div class="branch-label" style="font-size:0.68rem;color:#dc2626;">❌ 空壳 / 只有文档</div>
+          <div class="card stop" style="padding:10px 14px;">
+            <div class="title" style="font-size:0.88rem;">⛔ 无法继续</div>
+            <div class="desc" style="font-size:0.78rem;">
+              仓库里只有 README、占位文件或纯文档，没有实际实现代码。没有代码可审计。
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div class="branch-card">
-      <div class="branch-label">❌ 没找到</div>
+      <div class="branch-label">❌ 没找到仓库</div>
       <div class="card stop">
-        <div class="title">⛔ 停止</div>
-        <div class="desc">问用户有没有仓库 URL，或如实报告代码不可用。</div>
+        <div class="title">⛔ 无法继续</div>
+        <div class="desc">
+          LaTeX 里没有 GitHub 链接，GitHub 搜索也找不到匹配的仓库。
+          这时你可以手动提供一个仓库 URL，或者确认这篇论文的代码没有公开。
+        </div>
       </div>
     </div>
   </div>
 
   <div class="split-arrow"></div>
 
-  <!-- STEP 4 -->
+  <!-- ═══ 第 4 步：审计 ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">4</span> 执行审计</div>
-    <div class="desc">解析 LaTeX 声明、分析代码、生成审计报告。</div>
-    <div class="code">audit.py &lt;latex&gt; &lt;code&gt; -o &lt;audit&gt;</div>
+    <div class="title"><span class="step-badge">4</span> 🧪 执行审计引擎</div>
+    <div class="desc">
+      真正的审计从这里开始。审计脚本会通读 LaTeX 源码，<strong>提取论文中的所有声明</strong>，
+      然后把每一条声明和<strong>实际代码</strong>做对比。最终生成一份详细报告，
+      覆盖<strong>四个维度</strong>：
+    </div>
+    <div class="code">python3 scripts/audit.py &lt;latex目录&gt; &lt;代码目录&gt; --output-dir &lt;审计输出&gt;</div>
   </div>
   <div class="arrow-down"></div>
 
-  <!-- 4 subsections -->
-  <div class="section-divider">▼ 四个审计维度 ▼</div>
+  <div class="section-divider">▼ 四大审计维度 ▼</div>
   <div class="sub-flow">
+
     <div class="sub-card">
       <div class="sub-icon">🔁</div>
       <div class="sub-title">可复现性</div>
-      <div class="sub-desc">数据集、权重、baseline</div>
+      <div class="sub-desc">
+        数据集找得到吗？预训练权重提供了没？对比的 baseline 方法是真的实现了，
+        还是只从别的论文里抄了个数字？这一项回答："我能自己跑出论文里的结果吗？"
+      </div>
     </div>
+
     <div class="sub-card">
       <div class="sub-icon">🧩</div>
       <div class="sub-title">方法一致性</div>
-      <div class="sub-desc">论文 vs 代码架构</div>
+      <div class="sub-desc">
+        逐行对比：论文<em>说</em>模型做了什么 vs. 代码<em>真正</em>做了什么。
+        专门抓那些夸大其词的写法，比如"新颖的多头注意力机制"其实只是一个标准的
+        8 头 attention，没有任何特别之处。
+      </div>
     </div>
+
     <div class="sub-card">
       <div class="sub-icon">🔬</div>
       <div class="sub-title">实验细节</div>
-      <div class="sub-desc">超参数、预处理</div>
+      <div class="sub-desc">
+        检查训练超参数（学习率、batch size、优化器）、数据预处理方式、
+        评估指标计算——论文里写的和代码配置文件里实际设置的是不是同一回事。
+      </div>
     </div>
+
     <div class="sub-card">
       <div class="sub-icon">📊</div>
       <div class="sub-title">代码覆盖率</div>
-      <div class="sub-desc">哪些实验有代码？</div>
+      <div class="sub-desc">
+        论文里的每个实验、每张表格、每幅图：代码里有没有对应的实现脚本？
+        标记出那些论文里描述了但在代码里完全找不到的实验——这些结果你无法复现。
+      </div>
     </div>
+
   </div>
   <div class="arrow-sub-down"></div>
 
-  <!-- STEP 5 -->
+  <!-- ═══ 第 5 步：QA 页面 ═══ -->
   <div class="card">
-    <div class="title"><span class="step-badge">5</span> 生成 QA 问答页</div>
-    <div class="desc">默认翻译引言为三栏 HTML（英 · 人话 · 中）。后续问题继续添加。</div>
-    <div class="code">qa/introduction.html · qa/experiments.html · …</div>
+    <div class="title"><span class="step-badge">5</span> 💬 生成通俗易懂的 QA 解读页</div>
+    <div class="desc">
+      审计完成后，工具会<strong>自动翻译论文的引言（Introduction）</strong>，
+      生成一个三栏对照的 HTML 页面，用浏览器直接打开就能看：
+    </div>
+    <div class="detail">
+      <strong>左栏（🔤）</strong>——英文原文，按自然段逐段展示。<br>
+      <strong>中栏（💡）</strong>——"用人话说一遍"。用通俗易懂的语言解释每段在说什么，
+      遇到专业术语会加括号注释，遇到复杂概念会用类比帮助理解。
+      目标读者是普通人工智能专业本科生，不需要是本领域的专家。<br>
+      <strong>右栏（🀄）</strong>——准确的中文直译。
+    </div>
+    <div class="detail" style="margin-top:6px;">
+      📝 论文的每个自然段都是一张<strong>卡片（card）</strong>，从上到下排列。
+      你可以像读一本带注释的双语指南一样浏览整篇论文。
+      如果你对论文有后续问题（比如"这个方法到底是怎么做的？""表 3 说明了什么？"），
+      可以继续提问，工具会在 <code>qa/</code> 目录下新建对应的 HTML 页面——
+      每个问题一个独立网页，沿用同样的卡片风格。
+    </div>
+    <div class="code">qa/introduction.html · qa/method.html · qa/experiments.html · …</div>
   </div>
 
 </div>
