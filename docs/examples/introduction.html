@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>引言 — VAR 论文</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    line-height: 1.7;
+  }
+
+  .topbar {
+    background: #fff;
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0; z-index: 100;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+  .topbar .logo { font-weight: 700; font-size: 1rem; color: #1e293b; }
+  .topbar .logo span { color: #6366f1; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  h1 { text-align: center; font-size: 1.6rem; color: #0f172a; margin-bottom: 36px; font-weight: 800; }
+
+  /* ── card ── */
+  .card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.03);
+  }
+  .card-header {
+    background: #f8fafc;
+    padding: 10px 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #6366f1;
+    border-bottom: 1px solid #eef2ff;
+    letter-spacing: 0.5px;
+  }
+  .card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+  .card-body .col {
+    padding: 18px 20px;
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+  .card-body .col + .col {
+    border-left: 1px solid #f1f5f9;
+  }
+
+  .col-en { /* English original */ }
+  .col-en p { margin-bottom: 6px; }
+  .col-en em { font-style: italic; color: #6366f1; }
+
+  .col-plain { /* 人话 */ }
+  .col-plain p { margin-bottom: 6px; color: #334155; }
+  .col-plain strong { color: #0f172a; }
+
+  .col-zh { /* Chinese */ }
+  .col-zh p { margin-bottom: 6px; color: #475569; }
+
+  /* ── label above each column ── */
+  .col-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid;
+    display: inline-block;
+  }
+  .label-en { color: #6366f1; border-color: #c7d2fe; }
+  .label-plain { color: #f59e0b; border-color: #fde68a; }
+  .label-zh { color: #10b981; border-color: #a7f3d0; }
+
+  .term {
+    border-bottom: 1.5px dashed #94a3b8;
+    cursor: help;
+  }
+  .highlight {
+    background: #eef2ff;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  /* ── responsive ── */
+  @media (max-width: 800px) {
+    .card-body { grid-template-columns: 1fr; }
+    .card-body .col + .col { border-left: none; border-top: 1px solid #f1f5f9; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">🧪 code-<span>audit</span>-paper · QA</div>
+</div>
+
+<div class="container">
+
+<h1>📄 引言</h1>
+
+<!-- ============================================================ -->
+<!-- Card 1 -->
+<!-- ============================================================ -->
+<div class="card">
+  <div class="card-header">段落 1 · 大语言模型的成功</div>
+  <div class="card-body">
+    <div class="col col-en">
+      <div class="col-label label-en">🔤 英文原文</div>
+      <p>The advent of GPT series and more autoregressive (AR) large language models (LLMs) has heralded a new epoch in the field of artificial intelligence. These models exhibit promising intelligence in generality and versatility that, despite issues like hallucinations, are still considered to take a solid step toward the general artificial intelligence (AGI).</p>
+      <p>At the core of these models is a self-supervised learning strategy — <em>predicting the next token</em> in a sequence, a simple yet profound approach.</p>
+      <p>Studies into <strong>the success of these large AR models</strong> have highlighted their <strong>scalability and generalizability</strong>: the former, as exemplified by <em>scaling laws</em>, allows us to predict large model's performance from smaller ones and thus guides better resource allocation, while the latter, as evidenced by <em>zero-shot and few-shot</em> learning, underscores the unsupervised-trained models' adaptability to diverse, unseen tasks. These properties reveal AR models' potential in learning from vast unlabeled data, encapsulating the essence of "AGI".</p>
+    </div>
+    <div class="col col-plain">
+      <div class="col-label label-plain">💡 用大白话说</div>
+      <p>GPT 系列和大语言模型（LLM，比如 ChatGPT 背后的技术）开启了 AI 新时代。这些模型虽然有时候会"胡说八道"（幻觉），但它们展现出的通用智能，让大家觉得我们离通用人工智能（AGI，也就是像人一样啥都会的 AI）又近了一步。</p>
+      <p>这些模型的核心思路其实特别简单：就是让模型学会<strong>"猜下一个词"</strong>。比如给它"今天天气"，它要猜出"真好"。这个简单的"下一个词预测"（next-token prediction）任务，就是一切奇迹的基础。</p>
+      <p>研究人员总结了大模型的<strong>两大法宝</strong>：① <strong>可缩放性</strong>（scaling laws，缩放定律）——模型越大、数据越多，效果就越好，而且这个提升是有规律可预测的（像物理定律一样精确）；② <strong>泛化能力</strong>（generalizability）——即使没专门训练过某个任务，模型也能"零样本"（zero-shot）完成，比如不给例子就能翻译、总结。</p>
+    </div>
+    <div class="col col-zh">
+      <div class="col-label label-zh">🀄 中文翻译</div>
+      <p>GPT 系列及更多自回归大语言模型的出现，开启了人工智能领域的新纪元。这些模型展现出令人瞩目的通用性和多功能性，尽管存在幻觉等问题，但仍被认为是迈向通用人工智能的坚实一步。</p>
+      <p>这些模型的核心是一种自监督学习策略——<em>预测序列中的下一个词元</em>，一种简单却深刻的方法。</p>
+      <p>对大模型成功原因的研究突出了它们的<strong>可缩放性和泛化能力</strong>：前者以<em>缩放定律</em>为代表，使我们能够从较小模型预测大模型的性能，从而指导资源分配；后者以<em>零样本和少样本</em>学习为证据，彰显了无监督训练模型对多样化未知任务的适应能力。这些特性揭示了自回归模型从海量无标签数据中学习的潜力，凝聚了"通用人工智能"的精髓。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Card 2 -->
+<!-- ============================================================ -->
+<div class="card">
+  <div class="card-header">段落 2 · 视觉自回归模型的困境</div>
+  <div class="card-body">
+    <div class="col col-en">
+      <div class="col-label label-en">🔤 英文原文</div>
+      <p>In parallel, the field of computer vision has been striving to develop large autoregressive or world models, aiming to emulate their impressive scalability and generalizability. Trailblazing efforts like VQGAN and DALL-E along with their successors have showcased the potential of AR models in image generation. These models utilize a visual tokenizer to discretize continuous images into grids of 2D tokens, which are then flattened to a 1D sequence for AR learning, mirroring the process of sequential language modeling.</p>
+      <p>However, the scaling laws of these models remain underexplored, and more frustratingly, their performance <strong>significantly lags</strong> behind diffusion models, as shown in the comparison figure. In contrast to the remarkable achievements of LLMs, the power of autoregressive models in computer vision appears to be somewhat <strong>locked</strong>.</p>
+    </div>
+    <div class="col col-plain">
+      <div class="col-label label-plain">💡 用大白话说</div>
+      <p>与此同时，计算机视觉领域也想复制 LLM 的成功。早期工作如 VQGAN、DALL-E 等尝试把图像切成小块（token，就像把一句话拆成一个个词），然后像处理文字一样处理图片——先"看图识字"把图像变成离散的 token，再按顺序一个 token 一个 token 地生成图片。</p>
+      <p>但遗憾的是，这些图像自回归模型<strong>表现远不如扩散模型</strong>（diffusion model，比如 Stable Diffusion 背后的技术）。扩散模型生成的图片更好看、更多样。对比 LLM 在语言领域的辉煌，自回归模型在视觉领域仿佛被<strong>"封印"</strong>了——明明思路类似，效果却差了一大截。</p>
+    </div>
+    <div class="col col-zh">
+      <div class="col-label label-zh">🀄 中文翻译</div>
+      <p>与此同时，计算机视觉领域一直在努力开发大型自回归模型或世界模型，旨在模拟 LLM 令人瞩目的可缩放性和泛化能力。VQGAN 和 DALL-E 等开创性工作及其后续研究展示了自回归模型在图像生成中的潜力。这些模型使用视觉分词器将连续图像离散化为 2D token 网格，然后将其展平为 1D 序列进行自回归学习，模仿了语言建模的过程。</p>
+      <p>然而，这些模型的缩放定律仍未得到充分探索，更令人沮丧的是，它们的性能<strong>显著落后</strong>于扩散模型。与 LLM 的卓越成就相比，自回归模型在计算机视觉中的力量似乎被某种程度地<strong>封印</strong>了。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Card 3 -->
+<!-- ============================================================ -->
+<div class="card">
+  <div class="card-header">段落 3 · VAR 的核心想法：从"逐词"到"逐层"</div>
+  <div class="card-body">
+    <div class="col col-en">
+      <div class="col-label label-en">🔤 英文原文</div>
+      <p>Autoregressive modeling requires defining the order of data. Our work reconsiders how to "order" an image: Humans typically perceive or create images in a hierarchical manner, first capturing the global structure and then local details. This <strong>multi-scale, coarse-to-fine</strong> nature suggests an "order" for images. Also inspired by the widespread multi-scale designs, we define autoregressive learning for images as <strong>"next-scale prediction"</strong>, diverging from the conventional "next-token prediction".</p>
+      <p>Our approach begins by encoding an image into multi-scale token maps. The autoregressive process is then started from the 1×1 token map, and progressively expands in resolution: at each step, the transformer predicts the next higher-resolution token map conditioned on all previous ones. We refer to this methodology as <strong>Visual AutoRegressive (VAR)</strong> modeling.</p>
+    </div>
+    <div class="col col-plain">
+      <div class="col-label label-plain">💡 用大白话说</div>
+      <p>关键问题来了：语言有天然的顺序（从左到右），但图像是二维的，该按什么顺序生成呢？传统方法把图片切成小方块再排成一行——这就像把一幅画剪成纸条然后从左到右拼回去，显然很别扭。</p>
+      <p>作者换了个思路：<strong>人类画画是从粗到细的</strong>——先画轮廓、再画结构、最后加细节。那 AI 为什么不也这样呢？于是他们提出了<strong>"逐尺度预测"</strong>：先生成一个非常模糊的 1×1 小图（只有一种颜色），然后逐步提高分辨率，每一步都在上一步的基础上"补上更多细节"。就像先画草图，再逐步精修。</p>
+      <p>这套方法叫 <strong>VAR（视觉自回归建模）</strong>。它不再是一个 token 一个 token 地"挤牙膏"，而是一次性生成一整层分辨率的所有 token，效率高了非常多。</p>
+    </div>
+    <div class="col col-zh">
+      <div class="col-label label-zh">🀄 中文翻译</div>
+      <p>自回归建模需要定义数据的顺序。我们的工作重新思考了如何对图像"排序"：人类通常以层次化的方式感知或创作图像，先把握全局结构，再关注局部细节。这种<strong>多尺度、由粗到精</strong>的特性暗示了图像的"顺序"。同时受到广泛使用的多尺度设计的启发，我们将图像的自回归学习定义为<strong>"下一尺度预测"</strong>，区别于传统的"下一词元预测"。</p>
+      <p>我们的方法先将图像编码为多个尺度的 token 图。然后自回归过程从 1×1 的 token 图开始，逐步扩展分辨率：每一步，transformer 基于之前所有尺度预测下一个更高分辨率的 token 图。我们将这种方法称为<strong>视觉自回归建模（VAR）</strong>。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Card 4 -->
+<!-- ============================================================ -->
+<div class="card">
+  <div class="card-header">段落 4 · 惊艳的实验结果</div>
+  <div class="card-body">
+    <div class="col col-en">
+      <div class="col-label label-en">🔤 英文原文</div>
+      <p>VAR directly leverages GPT-2-like transformer architecture for visual autoregressive learning. On the ImageNet 256×256 benchmark, VAR significantly improves its AR baseline, achieving a Fréchet inception distance (FID) of 1.73 and an inception score (IS) of 350.2, with inference speed 20× faster.</p>
+      <p>Notably, VAR surpasses the Diffusion Transformer (DiT) — the foundation of leading diffusion systems like Stable Diffusion 3.0 and SORA — in FID/IS, data efficiency, inference speed, and scalability. VAR models also exhibit scaling laws akin to those witnessed in LLMs. Lastly, we showcase VAR's zero-shot generalization capabilities in tasks like image in-painting, out-painting, and editing. These results suggest VAR has initially emulated the two important properties of LLMs: <strong>Scaling Laws</strong> and <strong>zero-shot generalization</strong>.</p>
+    </div>
+    <div class="col col-plain">
+      <div class="col-label label-plain">💡 用大白话说</div>
+      <p>VAR 用的就是类似 GPT-2 的 transformer 架构，没搞花里胡哨的东西。在 ImageNet 256×256 图片生成任务上：</p>
+      <p>① FID 从传统 AR 的 18.65 暴降到 1.73（FID 越低越好，越低越像真照片）——这个数字<strong>超越了扩散模型 DiT</strong>（Stable Diffusion 3 和 SORA 的基础架构）；</p>
+      <p>② 推理速度快了 20 倍；</p>
+      <p>③ 也展现了类似 LLM 的缩放定律——模型越大效果越好，且规律可预测；</p>
+      <p>④ 还能零样本完成图片补全、外扩、编辑等任务——不用专门训练就能"举一反三"。</p>
+      <p>简单说：VAR 让 GPT 式的自回归模型在图像生成上<strong>首次打败了扩散模型</strong>，还顺便复现了 LLM 的两大法宝。</p>
+    </div>
+    <div class="col col-zh">
+      <div class="col-label label-zh">🀄 中文翻译</div>
+      <p>VAR 直接使用类似 GPT-2 的 transformer 架构进行视觉自回归学习。在 ImageNet 256×256 基准上，VAR 显著改进了其 AR 基线，FID 达到 1.73，IS 达到 350.2，推理速度提升 20 倍。</p>
+      <p>值得注意的是，VAR 在 FID/IS、数据效率、推理速度和可缩放性等多个维度上超越了扩散 Transformer（DiT）——这是 Stable Diffusion 3.0 和 SORA 等领先扩散系统的基础架构。VAR 模型也展现出与 LLM 类似的缩放定律。最后，我们展示了 VAR 在图像补全、外扩和编辑等下游任务中的零样本泛化能力。这些结果表明 VAR 已初步模拟了 LLM 的两大重要特性：<strong>缩放定律</strong>和<strong>零样本泛化</strong>。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- Card 5 -->
+<!-- ============================================================ -->
+<div class="card">
+  <div class="card-header">段落 5 · 四大贡献</div>
+  <div class="card-body">
+    <div class="col col-en">
+      <div class="col-label label-en">🔤 英文原文</div>
+      <p>In summary, our contributions to the community include:</p>
+      <ol style="padding-left:18px;">
+        <li style="margin-bottom:6px;">A new visual generative framework using a multi-scale autoregressive paradigm with next-scale prediction, offering new insights in autoregressive algorithm design for computer vision.</li>
+        <li style="margin-bottom:6px;">An empirical validation of VAR models' Scaling Laws and zero-shot generalization potential, which initially emulates the appealing properties of large language models (LLMs).</li>
+        <li style="margin-bottom:6px;">A breakthrough in visual autoregressive model performance, making GPT-style autoregressive methods surpass strong diffusion models in image synthesis <em>for the first time</em>.</li>
+        <li>A comprehensive open-source code suite, including both VQ tokenizer and autoregressive model training pipelines, to help propel the advancement of visual autoregressive learning.</li>
+      </ol>
+    </div>
+    <div class="col col-plain">
+      <div class="col-label label-plain">💡 用大白话说</div>
+      <p>这篇论文的四个贡献：</p>
+      <ol style="padding-left:18px;">
+        <li style="margin-bottom:6px;"><strong>新框架</strong>：提出了 VAR 这个"逐尺度预测"的新范式。以前是一个一个像素（token）生成，现在是一层一层分辨率生成。</li>
+        <li style="margin-bottom:6px;"><strong>验证了缩放定律和零样本能力</strong>：首次在视觉生成模型中复现了 LLM 的两大特性，证明了这条路是走得通的。</li>
+        <li style="margin-bottom:6px;"><strong>历史性突破</strong>：GPT 式的自回归模型<strong>首次在图像生成上打败了扩散模型</strong>（尤其是打败了 DiT，即 SORA 的底层架构）。</li>
+        <li><strong>完整开源</strong>：训练代码、模型权重、demo 全部放出，方便后续研究。</li>
+      </ol>
+    </div>
+    <div class="col col-zh">
+      <div class="col-label label-zh">🀄 中文翻译</div>
+      <p>总结而言，我们对社区的贡献包括：</p>
+      <ol style="padding-left:18px;">
+        <li style="margin-bottom:6px;">一个新的视觉生成框架，采用多尺度自回归范式和下一尺度预测，为计算机视觉中的自回归算法设计提供了新的思路。</li>
+        <li style="margin-bottom:6px;">对 VAR 模型的缩放定律和零样本泛化潜力进行了实证验证，初步模拟了大语言模型令人瞩目的特性。</li>
+        <li style="margin-bottom:6px;">视觉自回归模型性能的<em>首次</em>突破，使 GPT 式自回归方法在图像合成中超越了强扩散模型。</li>
+        <li>一套全面的开源代码套件，包括 VQ 分词器和自回归模型训练流程，以推动视觉自回归学习的发展。</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

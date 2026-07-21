@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>审计报告 — 论文 vs 代码</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    line-height: 1.7;
+  }
+
+  .topbar {
+    background: #fff;
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0; z-index: 100;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+  .topbar .logo { font-weight: 700; font-size: 1rem; color: #1e293b; }
+  .topbar .logo span { color: #6366f1; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  h1 { text-align: center; font-size: 1.8rem; color: #0f172a; margin-bottom: 4px; font-weight: 800; }
+  .subtitle { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 40px; }
+
+  section {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 28px 30px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.03);
+  }
+  section h2 {
+    font-size: 1.25rem;
+    color: #0f172a;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eef2ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  section h3 {
+    font-size: 1.05rem;
+    color: #334155;
+    margin: 22px 0 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+  }
+  th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .match-yes { background: #f0fdf4; }
+  .match-warn { background: #fffbeb; }
+  .match-no { background: #fef2f2; }
+  .match-maybe { background: #fff7ed; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .badge-ok { background: #dcfce7; color: #166534; }
+  .badge-no { background: #fef2f2; color: #991b1b; }
+  .badge-warn { background: #fffbeb; color: #92400e; }
+
+  .note-ok { color: #166534; background: #f0fdf4; padding: 10px 14px; border-radius: 8px; border: 1px solid #bbf7d0; }
+  .note-warn { color: #92400e; background: #fffbeb; padding: 10px 14px; border-radius: 8px; border: 1px solid #fde68a; }
+  .note-no { color: #991b1b; background: #fef2f2; padding: 10px 14px; border-radius: 8px; border: 1px solid #fecaca; }
+
+  .claim-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .claim-header {
+    background: #f8fafc;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .claim-src { font-weight: 400; color: #94a3b8; font-size: 0.78rem; }
+  .claim-body {
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    color: #334155;
+    font-style: italic;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .sum-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .sum-card .num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #6366f1;
+  }
+  .sum-card .label {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .muted { color: #94a3b8; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #6366f1; }
+
+  .verdict { font-size: 1rem; font-weight: 700; padding: 4px 0; }
+  .verdict-yes { color: #166534; }
+  .verdict-warn { color: #92400e; }
+  .verdict-no { color: #991b1b; }
+
+  .flair { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; margin-left: 4px; vertical-align: middle; }
+  .flair-hi { background: #fee2e2; color: #991b1b; }
+  .flair-mid { background: #fffbeb; color: #92400e; }
+  .flair-lo { background: #dcfce7; color: #166534; }
+
+  .audit-section-title { font-size: 1.1rem; color: #0f172a; margin: 28px 0 14px; font-weight: 700; border-left: 4px solid #6366f1; padding-left: 12px; }
+
+  .experiment-table td:nth-child(1) { white-space: nowrap; font-weight: 600; width: 70px; }
+  .experiment-table td:nth-child(3) { min-width: 220px; }
+
+  @media (max-width: 640px) {
+    .container { padding: 20px 14px 60px; }
+    section { padding: 18px 16px; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">📋 code-<span>audit</span>-paper · 深度审计报告</div>
+</div>
+
+<div class="container">
+
+  <h1>🧪 论文与代码深度审计报告</h1>
+  <p class="subtitle">人工深度审计 — 四维度交叉验证（可复现性 / 方法一致性 / 实验细节 / 代码覆盖率）</p>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section: 论文概览 (updated)                            -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>📋 论文概览</h2>
+    <p class="muted" style="margin-bottom:12px;">论文：<strong>Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction</strong>（arXiv: 2404.02905v2，NeurIPS 2024 Best Paper）</p>
+    <table>
+      <thead><tr><th>类别</th><th>自动提取</th><th>人工修正</th></tr></thead>
+      <tbody>
+        <tr><td>方法 / 架构组件</td><td>4</td><td><strong>7+</strong>（VAR tokenizer · VAR transformer · Multi-scale quantizer · Next-scale prediction · AdaLN · Attention mask · CFG 等）</td></tr>
+        <tr><td>提取到的声明</td><td>1</td><td><strong>4</strong>（① 首次 AR 超越 diffusion；② 缩放定律；③ 零样本泛化；④ 比 DiT 更高效）</td></tr>
+        <tr><td>提到的指标</td><td>0</td><td><strong>4</strong>：FID、IS、Precision、Recall</td></tr>
+        <tr><td>使用的数据集</td><td>0</td><td><strong>2</strong>：ImageNet（生成训练/评估）、OpenImages（VQVAE 训练）</td></tr>
+        <tr><td>实验章节</td><td>0</td><td><strong>4</strong>：SOTA 对比 (§5.1)、缩放定律 (§5.2)、零样本泛化 (§5.3 / Appendix)、消融实验 (§5.4)</td></tr>
+        <tr><td>对比的 baseline</td><td>0</td><td><strong>~15</strong>：BigGAN、GigaGAN、StyleGAN-XL、ADM、CDM、LDM-4、DiT、L-DiT、MaskGIT、RCG、VQVAE-2、VQGAN、ViT-VQGAN、RQTransformer 等</td></tr>
+        <tr><td>消融实验</td><td>无</td><td><strong>1 组</strong>（Table 3/ablation：AR→VAR、+AdaLN、+Top-k、+CFG、+Attn Norm、+Scale up）</td></tr>
+        <tr><td>表格数</td><td>2</td><td><strong>3</strong>（Table 1 主表 256×256、Table 2 512×512、Table 3 消融）</td></tr>
+        <tr><td>图数</td><td>10</td><td><strong>~10</strong>（intro 对比图、method 图、scaling law 图×2、生成样本×3、零样本编辑图、token dependency heatmap）</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section: 代码结构分析 (修正版)                          -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>📦 代码结构分析</h2>
+    <p class="muted" style="margin-bottom:12px;">代码仓库：<code>https://github.com/FoundationVision/VAR</code>（MIT License）</p>
+
+    <div class="summary-grid">
+      <div class="sum-card"><div class="num">Python</div><div class="label">主要语言</div></div>
+      <div class="sum-card"><div class="num">20</div><div class="label">源文件（.py + .ipynb）</div></div>
+      <div class="sum-card"><div class="num">~3800</div><div class="label">总代码行数（估算）</div></div>
+    </div>
+
+    <h3>代码能力检测（人工修正）</h3>
+    <table>
+      <thead><tr><th>状态</th><th>能力</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>训练代码</td><td><code>train.py</code> + <code>trainer.py</code> 完整的 VAR transformer 训练循环</td></tr>
+        <tr><td><span class="badge badge-warn">⚠️</span></td><td>评估代码</td><td>训练中有 loss/accuracy 的验证循环，但 <strong>FID/IS/Precision/Recall 计算不在代码中</strong>，需额外使用 OpenAI evaluation toolkit</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>数据集处理</td><td><code>utils/data.py</code> 基于 torchvision DatasetFolder 的 ImageNet 加载</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>模型定义</td><td><code>models/</code> 下完整定义了 VQVAE、VectorQuantizer2、VAR transformer、AdaLN、FFN、SelfAttention</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>配置文件</td><td><code>utils/arg_util.py</code> 提供完整的命令行参数系统（含默认值），README 提供每条训练命令</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>运行脚本</td><td>README 中列出 5 条完整的 <code>torchrun</code> 命令</td></tr>
+        <tr><td><span class="badge badge-no">❌</span></td><td>测试套件</td><td>无单元测试</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>README</td><td>详细的安装、训练、采样说明</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>依赖管理</td><td><code>requirements.txt</code></td></tr>
+        <tr><td><span class="badge badge-no">❌</span></td><td>Docker</td><td>无 Docker 支持</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>许可证</td><td>MIT License</td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>Demo / 示例</td><td><code>demo_sample.ipynb</code> + <code>demo_zero_shot_edit.ipynb</code></td></tr>
+        <tr><td><span class="badge badge-ok">✅</span></td><td>预训练权重</td><td>VQVAE checkpoint 自动从 HuggingFace 下载；VAR 权重提供 HuggingFace 链接（需手动下载）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>关键文件映射</h3>
+    <table>
+      <thead><tr><th>论文组件</th><th>代码文件</th></tr></thead>
+      <tbody>
+        <tr><td>VAR Transformer 核心</td><td><code>models/var.py</code>（VAR 类，含训练 forward 和推理 autoregressive_infer_cfg）</td></tr>
+        <tr><td>Multi-scale VQVAE</td><td><code>models/vqvae.py</code>（VQVAE 类）+ <code>models/basic_vae.py</code>（Encoder/Decoder）</td></tr>
+        <tr><td>Multi-scale Quantizer</td><td><code>models/quant.py</code>（VectorQuantizer2 类 — 实现 Alg 1 & 2 的残差量化）</td></tr>
+        <tr><td>Attention / FFN / AdaLN</td><td><code>models/basic_var.py</code>（SelfAttention, FFN, AdaLNSelfAttn, AdaLNBeforeHead）</td></tr>
+        <tr><td>训练 pipeline</td><td><code>train.py</code>（main）+ <code>trainer.py</code>（VARTrainer 类）</td></tr>
+        <tr><td>数据加载</td><td><code>utils/data.py</code>（build_dataset）</td></tr>
+        <tr><td>超参数配置</td><td><code>utils/arg_util.py</code>（Args 类，Typed Argument Parser）</td></tr>
+        <tr><td>采样 / 推理 Demo</td><td><code>demo_sample.ipynb</code>、<code>demo_zero_shot_edit.ipynb</code></td></tr>
+        <tr><td>分布式训练</td><td><code>dist.py</code>、<code>utils/data_sampler.py</code></td></tr>
+        <tr><td>学习率调度</td><td><code>utils/lr_control.py</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section 0: 可复现性检查                                -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>🔬 Section 0：可复现性检查</h2>
+
+    <h3>📊 数据集</h3>
+    <table>
+      <thead><tr><th>数据集</th><th>论文用途</th><th>代码状态</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="match-yes">
+          <td><strong>ImageNet</strong>（256×256 &amp; 512×512）</td>
+          <td>VAR transformer 训练 + 评估（1.28M 训练图片，50K 验证图片）</td>
+          <td>README 写明需手动下载并按标准目录结构放置；<code>data.py</code> 使用 <code>torchvision DatasetFolder</code> 加载；需通过 <code>--data_path</code> 指定路径</td>
+          <td><span class="badge badge-ok">✅</span> 接口完备，需用户自行获取数据</td>
+        </tr>
+        <tr class="match-warn">
+          <td><strong>OpenImages</strong></td>
+          <td>VQVAE tokenizer 训练（论文 §3.2 impl："tokenizer is also trained on OpenImages"）</td>
+          <td><strong>代码中完全没有</strong> VQVAE 训练代码或 OpenImages 加载逻辑。代码直接下载预训练好的 VQVAE checkpoint（<code>vae_ch160v4096z32.pth</code>）</td>
+          <td><span class="badge badge-warn">⚠️</span> VQVAE 训练不可复现，但这不是论文核心贡献</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note-warn">⚠️ 论文声称 VQVAE 在 OpenImages 上训练，但代码仓库仅提供预训练权重。文中也说明 VQVAE 架构与 VQGAN 相同，仅修改了量化层，故此缺失不影响核心声明的验证。</p>
+
+    <h3>🏋️ 预训练权重</h3>
+    <table>
+      <thead><tr><th>权重</th><th>论文是否提及</th><th>代码状态</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="match-yes">
+          <td><strong>VQVAE tokenizer</strong>（<code>vae_ch160v4096z32.pth</code>）</td>
+          <td>论文说 VQVAE 在 OpenImages 上训练，架构与 VQGAN 相同</td>
+          <td><code>train.py:95-97</code> 自动从 HuggingFace 下载；README 提供链接</td>
+          <td><span class="badge badge-ok">✅</span> 自动下载</td>
+        </tr>
+        <tr class="match-yes">
+          <td><strong>VAR transformer</strong>（d16/d20/d24/d30/d36）</td>
+          <td>论文声明"released all models and codes"</td>
+          <td>README 提供 HuggingFace 链接，需手动下载；<code>demo_sample.ipynb</code> 演示如何加载</td>
+          <td><span class="badge badge-ok">✅</span> 权重完整可用</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>⚔️ Baseline 对比方法</h3>
+    <table>
+      <thead><tr><th>Baseline</th><th>论文 Table</th><th>代码是否实现</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="match-warn"><td>BigGAN、GigaGAN、StyleGAN-XL（GAN 类）</td><td>Table 1</td><td>❌ 仅引用论文数字</td><td><span class="badge badge-warn">⚠️</span> 数字来自原论文，合理</td></tr>
+        <tr class="match-warn"><td>ADM、CDM、LDM-4、DiT、L-DiT（Diffusion 类）</td><td>Table 1</td><td>❌ 仅引用论文数字；DiT 数字声称"用官方代码复现"</td><td><span class="badge badge-warn">⚠️</span> 部分可接受（尤其 DiT 是核心对比对象）</td></tr>
+        <tr class="match-warn"><td>MaskGIT、RCG（Mask. 类）</td><td>Table 1</td><td>❌ 仅引用论文数字</td><td><span class="badge badge-warn">⚠️</span> 合理</td></tr>
+        <tr class="match-warn"><td>VQGAN、VQVAE-2、ViT-VQGAN、RQTransformer（AR 类）</td><td>Table 1</td><td>❌ 仅引用论文数字</td><td><span class="badge badge-warn">⚠️</span> 合理</td></tr>
+        <tr class="match-yes"><td><strong>AR baseline</strong>（消融实验行 1）</td><td>Table Ablation</td><td>✅ 论文说明该 baseline 来自 MaskGIT 的实现；VAR 代码支持通过修改 attention mask 实现标准 AR（但未提供独立 AR 训练脚本）</td><td><span class="badge badge-ok">✅</span> 方法可复现，虽需用户自行配置</td></tr>
+      </tbody>
+    </table>
+    <p class="note-ok">✅ 论文核心对比对象 DiT 的数字被标注为"用官方代码复现"，这增加了可信度。VAR 的消融实验（AR→VAR）基线也可用相同代码框架复现。</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section 1: 方法实现一致性                              -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>🔍 Section 1：方法实现一致性</h2>
+
+    <div class="audit-section-title">方法对照表</div>
+    <table>
+      <thead>
+        <tr><th style="width:20%">论文描述</th><th style="width:70px">花哨度</th><th>代码实际实现</th><th style="width:60px">结论</th></tr>
+      </thead>
+      <tbody>
+
+        <tr class="match-yes">
+          <td><strong>Multi-scale VQVAE</strong>：将图像编码为 K 个多尺度 token map，使用与 VQGAN 相同的 CNN 架构但修改量化层（§3.1, Alg 1 & 2）</td>
+          <td><span class="flair flair-lo">低</span></td>
+          <td><code>vqvae.py</code> + <code>basic_vae.py</code>：Encoder/Decoder 完全复用 Stable Diffusion/LDM 的 VQ-f16 配置（ch_mult=(1,1,2,2,4), 2 res blocks, self-attn at last resolution）。论文对此描述诚实。</td>
+          <td>✅ 一致</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>Multi-scale Quantizer（残差量化）</strong>：从粗到细逐尺度量化残差特征，共享 codebook（V=4096），K 个额外卷积层 φ_k（§3.1, Alg 1 & 2）</td>
+          <td><span class="flair flair-lo">低</span></td>
+          <td><code>quant.py</code> <code>VectorQuantizer2.forward()</code>：逐尺度 interpolate→找最近邻→lookup→upsample→φ 卷积→残差更新。与 Alg 1/2 完全一致。φ 层通过 <code>PhiPartiallyShared</code>（share_quant_resi=4）实现，代码注释直接指向论文算法。</td>
+          <td>✅ 严格一致</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>Next-scale prediction</strong>：自回归单元是整个 token map，从 1×1 逐步扩展到最大分辨率（§3.1, Eq. 4）</td>
+          <td><span class="flair flair-lo">低</span></td>
+          <td><code>var.py</code> <code>VAR.autoregressive_infer_cfg()</code>：for 循环逐 scale 预测，每次 predict 整个 token map 的所有 token 并行。patch_nums=(1,2,3,4,5,6,8,10,13,16) 对应 10 个尺度。</td>
+          <td>✅ 严格一致</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>Block-wise causal attention mask</strong>：训练时每个 r_k 只能看到 r_{≤k}；推理时 KV-cache 无需 mask（§3.1, Fig 2 caption）</td>
+          <td><span class="flair flair-lo">低</span></td>
+          <td><code>var.py:107-112</code>：<code>attn_bias_for_masking = torch.where(d >= dT, 0., -inf)</code>，生成块对角下三角 mask。推理时 <code>attn_bias=None</code> + KV-cache。</td>
+          <td>✅ 严格一致</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>GPT-2 架构</strong>：标准 decoder-only transformer，AdaLN 替换 LN，class embedding 作为 start token 和 AdaLN condition（§3.2）</td>
+          <td><span class="flair flair-mid">中</span></td>
+          <td><code>basic_var.py</code>：SelfAttention + FFN (GELU) + AdaLN。论文说"GPT-2-like"但实际上加了 AdaLN——这已经不是标准 GPT-2 了。但论文 §3.2 明确说明使用了 AdaLN，不算隐瞒。</td>
+          <td>✅ 一致（论文说明了修改）</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>AdaLN（Adaptive Layer Normalization）</strong>：用 class condition 生成 scale 和 shift 参数（§3.2）</td>
+          <td><span class="flair flair-mid">中</span></td>
+          <td><code>basic_var.py</code> <code>AdaLNSelfAttn.forward()</code>：<code>gamma1, gamma2, scale1, scale2, shift1, shift2</code> 六个参数由 class embedding 经 SiLU+Linear 生成，分别作用于 attention 和 FFN 的输入/输出。代码实现比论文描述更精细。</td>
+          <td>✅ 一致</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>Normalizing q, k to unit vectors</strong>：attention 前将 query 和 key 归一化到单位向量（§3.2）</td>
+          <td><span class="flair flair-lo">低</span></td>
+          <td><code>basic_var.py:101-105</code>：<code>attn_l2_norm</code> 选项，<code>q = F.normalize(q, dim=-1).mul(scale_mul); k = F.normalize(k, dim=-1)</code>。默认启用（<code>anorm=True</code>）。</td>
+          <td>✅ 一致</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>Classifier-Free Guidance (CFG)</strong>：训练时随机丢弃 class condition，推理时用 (1+t)*cond - t*uncond（消融 Table 3）</td>
+          <td><span class="flair flair-lo">低</span></td>
+          <td><code>var.py:128-190</code>：<code>autoregressive_infer_cfg()</code> 将 batch 翻倍（前一半 cond，后一半 uncond），<code>logits = (1+t)*cond - t*uncond</code>。cond_drop_rate=0.1 在训练 forward 中实现。</td>
+          <td>✅ 一致</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td><strong>模型缩放规则</strong>：w=64d, h=d, dr=0.1·d/24，参数量 N(d)=73728d³（§3.2 Eq. 5）</td>
+          <td><span class="flair flair-lo">低</span></td>
+          <td><code>models/__init__.py build_vae_var()</code>：<code>heads=depth; width=depth*64; dpr=0.1*depth/24</code>。与论文完全一致。<code>embed_dim=width, num_heads=heads</code>。</td>
+          <td>✅ 严格一致</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <h3>📌 代码中有但论文未强调的</h3>
+    <ul>
+      <li><strong>Level embedding</strong>：<code>var.py:76</code> 有 <code>lvl_embed</code>——类似 GPT 的 segment embedding，用于区分不同尺度的 token。论文 Fig 2 虽提到"Embedding"但未详细说明 level embedding。</li>
+      <li><strong>Flash Attention / xformers 集成</strong>：代码自动检测并使用 flash-attn、xformers、fused MLP、fused LayerNorm 以加速训练。论文 §3.2 未提及这些工程优化。</li>
+      <li><strong>Progressive training</strong>：<code>arg_util.py</code> 有 <code>--pg</code> 参数支持渐进式训练（先从少量尺度开始），但默认关闭（<code>pg=0.0</code>），论文中仅 Appendix 简要提及。</li>
+    </ul>
+
+    <h3>📌 论文与代码的细微差异</h3>
+    <ul>
+      <li><strong>推理加速倍数描述不一致</strong>：论文 Abstract 说"20× faster inference"，正文 §5.1 也说 20× faster。但消融 Table 中 AR baseline cost=1, VAR cost=0.013 → 77× faster。代码验证：VAR 推理只需 10 步（K=10 个尺度），AR 需要 256 步（16×16=256 tokens），256/10=25.6× 理论加速。论文可能取保守估计或考虑每步计算量差异。</li>
+      <li><strong>AdaLN 共享模式</strong>：论文 §3.2 footnote 提到 512×512 模型因资源限制使用单一共享 AdaLN（代码中 <code>--saln=1</code>），但 256×256 模型默认每条 block 独立 AdaLN。这在小字 footnote 中说明，但没有在主文本中强调区别。</li>
+    </ul>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section 2: 实验细节一致性                              -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>📐 Section 2：实验细节一致性</h2>
+
+    <h3>🔧 超参数对照</h3>
+    <table>
+      <thead><tr><th>超参数</th><th>论文描述（§3.2）</th><th>代码实现</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="match-yes">
+          <td>Base learning rate</td>
+          <td>10⁻⁴ per 256 batch size</td>
+          <td><code>arg_util.py:41</code> <code>tblr=1e-4</code>；<code>arg_util.py:260</code> <code>tlr = ac * tblr * glb_batch_size / 256</code></td>
+          <td>✅ 一致</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Optimizer</td>
+          <td>AdamW, β₁=0.9, β₂=0.95, decay=0.05</td>
+          <td><code>train.py:118</code> <code>AdamW(betas=(0.9, 0.95), fused=True)</code>；<code>arg_util.py:44</code> <code>twd=0.05</code></td>
+          <td>✅ 一致</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Batch size</td>
+          <td>768 to 1024（取决于模型大小）</td>
+          <td>README 命令：d16/d20/d24 用 bs=768，d30 用 bs=1024；<code>arg_util.py:48</code> <code>bs=768</code></td>
+          <td>✅ 一致</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Training epochs</td>
+          <td>200 to 350（取决于模型大小）</td>
+          <td>README：d16 ep=200, d20 ep=250, d24/d30 ep=350；<code>arg_util.py:53</code> <code>ep=250</code></td>
+          <td>✅ 一致</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Gradient clip</td>
+          <td>未明确提及</td>
+          <td><code>arg_util.py:45</code> <code>tclip=2.0</code></td>
+          <td>⚠️ 论文未提，但代码默认有</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Weight decay schedule</td>
+          <td>未明确说明</td>
+          <td><code>lr_control.py</code> 实现 cosine/linear decay；<code>wpe=0.01</code> 最终 lr ratio</td>
+          <td>⚠️ 论文未详细描述</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Mixed precision</td>
+          <td>未明确提及</td>
+          <td><code>fp16=1</code>（AMP）；README 所有命令均使用 <code>--fp16=1</code></td>
+          <td>⚠️ 论文未提</td>
+        </tr>
+        <tr class="match-yes">
+          <td>VQVAE codebook size V</td>
+          <td>V=4096（§3.2）</td>
+          <td><code>models/__init__.py:86</code> <code>V=4096</code></td>
+          <td>✅ 一致</td>
+        </tr>
+        <tr class="match-yes">
+          <td>VQVAE downsample ratio</td>
+          <td>16×（§3.2）</td>
+          <td><code>vqvae.py:43</code> <code>downsample = 2**(len(ch_mult)-1) = 16</code></td>
+          <td>✅ 一致</td>
+        </tr>
+        <tr class="match-yes">
+          <td>VQVAE z_channels</td>
+          <td>未明确说明</td>
+          <td>32（<code>train.py:86</code> <code>Cvae=32</code>）</td>
+          <td>⚠️ 论文未提及</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>🖼️ 数据预处理对照</h3>
+    <table>
+      <thead><tr><th>处理步骤</th><th>论文描述</th><th>代码实现（<code>utils/data.py</code>）</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="match-yes">
+          <td>Resize</td>
+          <td>未明确描述</td>
+          <td><code>Resize(mid_reso, LANCZOS)</code> → <code>mid_reso=1.125*final_reso</code></td>
+          <td>⚠️ 论文未提</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Crop</td>
+          <td>未明确描述</td>
+          <td>训练：<code>RandomCrop(final_reso)</code>；验证：<code>CenterCrop(final_reso)</code></td>
+          <td>⚠️ 论文未提</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Normalization</td>
+          <td>未明确描述</td>
+          <td><code>ToTensor()</code> 后 <code>normalize_01_into_pm1</code> → [-1, 1]</td>
+          <td>⚠️ 论文未提</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Horizontal flip</td>
+          <td>未明确描述</td>
+          <td><code>hflip=False</code>（默认关闭）</td>
+          <td>⚠️ 论文未提</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note-warn">⚠️ 论文对数据预处理细节几乎未提及，但这在图像生成领域的论文中比较常见——大多数对标工作也不详细描述数据增强细节。</p>
+
+    <h3>🖥️ 训练硬件与资源</h3>
+    <table>
+      <thead><tr><th>细节</th><th>论文</th><th>代码</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="match-warn">
+          <td>GPU 数量</td>
+          <td>未明确说明</td>
+          <td>README：<code>--nproc_per_node=8</code>（暗示 8 GPUs）；需配置 <code>--nnodes</code></td>
+          <td>⚠️ 论文未说明硬件</td>
+        </tr>
+        <tr class="match-warn">
+          <td>GPU 型号</td>
+          <td>未说明</td>
+          <td>未说明（推测 NVIDIA A100/H100 级别）</td>
+          <td>⚠️</td>
+        </tr>
+        <tr class="match-yes">
+          <td>分布式框架</td>
+          <td>未明确</td>
+          <td>PyTorch DDP（<code>torchrun</code> + <code>DistributedDataParallel</code>）</td>
+          <td>⚠️ 论文未提</td>
+        </tr>
+        <tr class="match-warn">
+          <td>随机种子</td>
+          <td>未说明</td>
+          <td><code>arg_util.py:112</code> <code>seed=None</code>；支持设置 <code>--seed</code></td>
+          <td>⚠️ 默认无固定种子</td>
+        </tr>
+        <tr class="match-warn">
+          <td>训练时长</td>
+          <td>未说明具体时长</td>
+          <td>未说明（代码有 remain_time 估算日志输出）</td>
+          <td>⚠️ 论文未提供</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>📏 评估方式</h3>
+    <table>
+      <thead><tr><th>指标</th><th>论文描述</th><th>代码状态</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr class="match-warn">
+          <td>FID / IS / Precision / Recall</td>
+          <td>ImageNet 256×256 和 512×512 benchmark 上的标准指标</td>
+          <td>代码中无 FID/IS 计算逻辑。README 说明：使用 <code>autoregressive_infer_cfg(cfg=1.5, top_p=0.96, top_k=900)</code> 采样 50K 图像 → 保存为 PNG → 打包为 .npz → 用 <strong>OpenAI evaluation toolkit</strong> 计算</td>
+          <td>⚠️ 评估代码在外部（但方法明确）</td>
+        </tr>
+        <tr class="match-yes">
+          <td>Validation loss / accuracy</td>
+          <td>用于缩放定律分析</td>
+          <td><code>trainer.py</code> <code>eval_ep()</code> 在每个 epoch 计算 cross-entropy loss 和 token accuracy</td>
+          <td>✅ 代码中有</td>
+        </tr>
+        <tr class="match-warn">
+          <td>Wall-clock time</td>
+          <td>Table 1/2 中报告推理时间</td>
+          <td>代码中无基准测试脚本；论文可能手动测量</td>
+          <td>⚠️ 无自动化基准测试</td>
+        </tr>
+        <tr class="match-yes">
+          <td>CFG ratio</td>
+          <td>2.0（消融 Table）</td>
+          <td>代码默认 <code>cfg=1.5</code>；README 说 "cfg=1.5 for trade-off, cfg=5.0 for better visual quality"</td>
+          <td>⚠️ 论文报告用的是 cfg=2.0，README 说 benchmarking 用 1.5</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note-warn">⚠️ 论文 Table 1 标注 VAR-d30 的 FID=1.92（无 rejection sampling）和 1.73（带 rejection sampling），但 README 的 VAR zoo 表格中 d30 FID=1.97（无 rejection）和 1.80（带 rejection）。存在 ~0.05-0.07 的差异。这可能是因为 README 权重是稍后重新训练的 checkpoint。</p>
+
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section 3: 实验代码覆盖率                              -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>🧪 Section 3：每个实验的代码覆盖率</h2>
+
+    <table class="experiment-table">
+      <thead><tr><th>编号</th><th>来源章节</th><th>实验内容</th><th>对应 Table/Figure</th><th>代码状态</th><th>对应文件 / 说明</th></tr></thead>
+      <tbody>
+
+        <tr class="match-yes">
+          <td>E1</td>
+          <td>§5.1 (SOTA)</td>
+          <td>ImageNet 256×256 class-conditional 生成质量对比（FID/IS/Precision/Recall vs. GAN/Diffusion/Mask/AR）</td>
+          <td>Table 1</td>
+          <td><span class="badge badge-warn">⚠️</span> 训练代码完备，评估需外部工具</td>
+          <td><code>train.py</code> 训练；README 说明用 OpenAI eval toolkit 计算 FID</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E2</td>
+          <td>§5.1 (SOTA)</td>
+          <td>ImageNet 512×512 class-conditional 生成质量对比</td>
+          <td>Table 2</td>
+          <td><span class="badge badge-warn">⚠️</span> 训练代码完备，评估需外部工具</td>
+          <td>README 提供 d36-s 训练命令（<code>--saln=1 --pn=512</code>）</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E3</td>
+          <td>§5.1 (SOTA)</td>
+          <td>推理速度对比（AR ~20× 比 VQGAN/ViT-VQGAN 快，45× 比 DiT-XL/2 快）</td>
+          <td>Table 1 (Time column)</td>
+          <td><span class="badge badge-warn">⚠️</span> 无自动化 benchmark 脚本</td>
+          <td>逻辑上 10 steps vs 256 steps ≈ 25×；代码推理确实只需 K=10 步</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E4</td>
+          <td>§5.2 (Scaling Laws)</td>
+          <td>缩放定律：12 个模型（18M→2B），测试 loss/error vs. 参数量 N</td>
+          <td>Figure "P" (论文 Fig 5)</td>
+          <td><span class="badge badge-ok">✅</span> 训练代码完备，绘图脚本未提供但数据来自训练日志</td>
+          <td><code>train.py</code> + 不同 <code>--depth</code>；日志中包含 L_mean/L_tail/acc_mean/acc_tail</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E5</td>
+          <td>§5.2 (Scaling Laws)</td>
+          <td>缩放定律：test loss/error vs. 最优训练计算量 C_min</td>
+          <td>Figure "C" (论文 Fig 6)</td>
+          <td><span class="badge badge-ok">✅</span> 同上</td>
+          <td>训练日志可提取 loss vs. PFLOPS 数据</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E6</td>
+          <td>§5.3 (Visualization)</td>
+          <td>不同模型大小和训练阶段的生成样本对比（4 sizes × 3 stages = 12）</td>
+          <td>Figure "9grid" (论文 Fig 7)</td>
+          <td><span class="badge badge-ok">✅</span></td>
+          <td><code>demo_sample.ipynb</code> 可加载各尺寸模型生成样本</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E7</td>
+          <td>§5.4 (Ablation)</td>
+          <td>消融实验：AR→VAR、+AdaLN、+Top-k、+CFG、+Attn Norm、+Scale up（6 行）</td>
+          <td>Table Ablation</td>
+          <td><span class="badge badge-warn">⚠️</span> 架构组件可配置，但需逐行重新训练</td>
+          <td><code>var.py</code> 支持 attn_l2_norm、shared_aln、CFG；top-k 在推理时设置；需手动重训获取各消融行数字</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E8</td>
+          <td>§6 / Appendix (Zero-shot)</td>
+          <td>零样本图像补全（in-painting）</td>
+          <td>Figure "zero" (论文 Fig 8)</td>
+          <td><span class="badge badge-ok">✅</span></td>
+          <td><code>demo_zero_shot_edit.ipynb</code> 包含 in-painting 演示</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E9</td>
+          <td>§6 / Appendix (Zero-shot)</td>
+          <td>零样本图像外扩（out-painting）</td>
+          <td>Figure "zero" (论文 Fig 8)</td>
+          <td><span class="badge badge-ok">✅</span></td>
+          <td><code>demo_zero_shot_edit.ipynb</code> 包含 out-painting 演示</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E10</td>
+          <td>§6 / Appendix (Zero-shot)</td>
+          <td>零样本 class-conditional 图像编辑</td>
+          <td>Figure "zero" (论文 Fig 8)</td>
+          <td><span class="badge badge-ok">✅</span></td>
+          <td><code>demo_zero_shot_edit.ipynb</code> 包含编辑演示</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E11</td>
+          <td>Appendix D</td>
+          <td>VQVAE token dependency 分析（attention heatmap）</td>
+          <td>Figure "heat" (论文 Fig 9)</td>
+          <td><span class="badge badge-no">❌</span></td>
+          <td>代码中无此分析脚本。paper 可能手动提取 attention weights 绘制</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E12</td>
+          <td>Appendix B/C</td>
+          <td>AR vs VAR 时间复杂度证明</td>
+          <td>Lemma 1 & 2</td>
+          <td><span class="badge badge-ok">✅</span></td>
+          <td>理论证明，无需代码。代码实现与复杂度分析一致（10 steps vs 256 steps）</td>
+        </tr>
+
+        <tr class="match-yes">
+          <td>E13</td>
+          <td>Abstract / Fig 1</td>
+          <td>生成样本展示（256×256 和 512×512）</td>
+          <td>Fig 1 (abs), Appendix Fig</td>
+          <td><span class="badge badge-ok">✅</span></td>
+          <td><code>demo_sample.ipynb</code> 提供完整采样代码</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <div class="summary-grid" style="margin-top:20px;">
+      <div class="sum-card"><div class="num">13</div><div class="label">实验总数</div></div>
+      <div class="sum-card"><div class="num">8</div><div class="label">✅ 代码可直接复现</div></div>
+      <div class="sum-card"><div class="num">4</div><div class="label">⚠️ 需额外工具/手动步骤</div></div>
+      <div class="sum-card"><div class="num">1</div><div class="label">❌ 代码缺失</div></div>
+    </div>
+
+    <p class="note-ok">✅ 总体代码覆盖率良好。核心实验（训练、采样、零样本编辑）均有对应代码。主要缺口是 FID 评估（依赖外部工具）和一个小的分析脚本。</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section 4: 论文声明详情 (增强版)                        -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>📝 Section 4：论文关键声明审计</h2>
+
+    <div class="claim-card">
+      <div class="claim-header">声明 #1 — 核心贡献 <span class="claim-src">来源：Abstract &amp; §5.1</span></div>
+      <div class="claim-body">"VAR, for the <em>first time</em>, makes GPT-style AR models surpass diffusion transformers in image generation."
+      <br><br><span class="verdict verdict-yes">审计结论：✅ 声明得到验证。</span>Table 1 数据表明 VAR-d30 (FID=1.92) 确实低于 DiT-XL/2 (FID=2.27)，且参数更少（2B vs 675M）、训练 epoch 更少（350 vs 1400）。代码完整可用。论文 footnoted 说明相关工作 MAGVIT 的 "language model beats diffusion" 实际上属于 BERT-style 而非 GPT-style。此声明合理。</div>
+    </div>
+
+    <div class="claim-card">
+      <div class="claim-header">声明 #2 — 缩放定律 <span class="claim-src">来源：Abstract &amp; §5.2</span></div>
+      <div class="claim-body">"Scaling up VAR models exhibits clear power-law scaling laws similar to those observed in LLMs, with linear correlation coefficients near −0.998."
+      <br><br><span class="verdict verdict-yes">审计结论：✅ 声明合理。</span>代码支持训练 12 种不同深度（depth 6→30），参数量从 18M 到 2.0B。训练日志记录了 loss 和 accuracy data，可用于复现 scaling law 图。Pearson 系数−0.998 非常高，需要在相同条件下复现才能完全验证。</div>
+    </div>
+
+    <div class="claim-card">
+      <div class="claim-header">声明 #3 — 零样本泛化 <span class="claim-src">来源：Abstract &amp; §6</span></div>
+      <div class="claim-body">"VAR further showcases zero-shot generalization ability in downstream tasks including image in-painting, out-painting, and editing."
+      <br><br><span class="verdict verdict-yes">审计结论：✅ 代码完整。</span><code>demo_zero_shot_edit.ipynb</code> 提供了所有三种任务的完整演示。方法是 teacher-force 已知 token + 仅生成未知区域，这是标准的零样本方法。</div>
+    </div>
+
+    <div class="claim-card">
+      <div class="claim-header">声明 #4 — 开源 <span class="claim-src">来源：Abstract &amp; §1 Introduction</span></div>
+      <div class="claim-body">"We have released all models and codes to promote the exploration of AR/VAR models."
+      <br><br><span class="verdict verdict-yes">审计结论：✅ 已验证。</span>训练代码、模型定义、预训练权重（HuggingFace）、demo notebooks、README 全部可用。MIT 许可证。</div>
+    </div>
+
+    <div class="claim-card">
+      <div class="claim-header">声明 #5 — 数据效率 <span class="claim-src">来源：§5.1</span></div>
+      <div class="claim-body">"VAR is considered more data-efficient, as it requires only 350 training epochs compared to DiT-XL/2's 1400."
+      <br><br><span class="verdict verdict-warn">审计结论：⚠️ 部分可验证。</span>代码中 epochs 参数可配置（ep=200~350 取决于模型大小）。但 DiT 使用的是不同的训练框架和 tokenizer，epoch 直接对比说服力有限——不同模型的每 epoch 计算量可能不同。论文自己也承认这一点（§5.1 用 wall-clock time 做了补充对比）。</div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  Section 5: 总体审计总结                                -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <section>
+    <h2>📊 审计总结 — 四维度评估</h2>
+
+    <div class="summary-grid">
+      <div class="sum-card">
+        <div class="num">⭐⭐⭐⭐</div>
+        <div class="label">可复现性</div>
+      </div>
+      <div class="sum-card">
+        <div class="num">⭐⭐⭐⭐⭐</div>
+        <div class="label">方法一致性</div>
+      </div>
+      <div class="sum-card">
+        <div class="num">⭐⭐⭐⭐</div>
+        <div class="label">实验细节</div>
+      </div>
+      <div class="sum-card">
+        <div class="num">⭐⭐⭐⭐</div>
+        <div class="label">代码覆盖率</div>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>维度</th><th>评级</th><th>详细评估</th></tr></thead>
+      <tbody>
+        <tr class="match-yes">
+          <td><strong>可复现性</strong></td>
+          <td>⭐⭐⭐⭐（良好）</td>
+          <td>
+            训练代码 + 预训练权重 + 数据集接口 + README 命令均完备。<br>
+            <strong>加分项</strong>：支持自动断点续训、HuggingFace 权重自动下载。<br>
+            <strong>减分项</strong>：① VQVAE 训练代码缺失（论文非核心贡献，可接受）；② FID 评估依赖外部工具；③ 硬件需求高（8×GPU）。<br>
+            <strong>估算</strong>：有 8×A100 GPU 的情况下，按 README 命令可复现 VAR-d16 训练。
+          </td>
+        </tr>
+        <tr class="match-yes">
+          <td><strong>方法一致性</strong></td>
+          <td>⭐⭐⭐⭐⭐（优秀）</td>
+          <td>
+            论文和代码在架构层面 <strong>高度一致</strong>。所有核心方法（multi-scale quantization、next-scale prediction、block-wise attention mask、AdaLN、CFG）均在代码中有严格对应的实现。算法伪代码（Alg 1 & 2）与代码一一对应。未发现"论文说 A，代码做 B"的情况。<br>
+            <strong>花哨包装程度：低</strong>。论文对方法的描述较为诚实，没有过度包装。
+          </td>
+        </tr>
+        <tr class="match-yes">
+          <td><strong>实验细节</strong></td>
+          <td>⭐⭐⭐⭐（良好）</td>
+          <td>
+            核心超参数（lr、optimizer、batch size、epochs）论文与代码一致。<br>
+            <strong>减分项</strong>：① 数据预处理细节（augmentation、normalization）论文未描述；② 硬件配置未明确说明；③ 论文 Table 1 数字与 README 最新权重数字有 ~0.05-0.07 的 FID 差异；④ CFG ratio 论文用 2.0 但 README 建议 1.5。
+          </td>
+        </tr>
+        <tr class="match-yes">
+          <td><strong>代码覆盖率</strong></td>
+          <td>⭐⭐⭐⭐（良好）</td>
+          <td>
+            13 个实验/图表中：✅ 8 个可直接复现，⚠️ 4 个需额外工具/步骤，❌ 1 个代码缺失。<br>
+            缺失的主要是 FID 评估代码（依赖 OpenAI eval toolkit，明确说明）和 attention heatmap 分析脚本（小问题）。<br>
+            训练 pipeline、采样、零样本编辑 demo 全部有对应代码。
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>🏆 总体结论</h3>
+    <p class="note-ok" style="font-size:0.95rem;">
+      <strong>这是一篇代码质量较高的论文。</strong>作为 NeurIPS 2024 Best Paper，VAR 在代码完整性方面表现出色——训练代码、预训练权重、demo 和详细 README 一应俱全。
+      论文方法描述与代码实现高度一致，未发现夸大或隐瞒。核心声明（AR 首次超越 diffusion、缩放定律、零样本泛化）均有对应代码支撑。
+      主要不足是部分实验细节（数据预处理、硬件配置）未在论文中充分说明，以及 FID 评估代码需依赖外部工具。
+      总体而言，这篇论文的代码审计结果显著优于该领域平均水准。
+    </p>
+
+    <h3>⚠️ 需注意的问题汇总</h3>
+    <ol>
+      <li><strong>VQVAE 训练代码缺失</strong>：论文声称 VQVAE 在 OpenImages 上训练，但代码中直接下载预训练权重。这不影响核心贡献（VAR transformer）的复现，但意味着如果要用不同配置的 tokenizer，需自己写训练代码。</li>
+      <li><strong>FID 评估需外部工具</strong>：代码不包含 FID/IS/Precision/Recall 计算。README 提供了明确的评估流程（使用 OpenAI guided-diffusion evaluation toolkit），但流程较为手工程。</li>
+      <li><strong>论文与 README 数字有微小差异</strong>：论文 Table 1 VAR-d30 FID=1.92（无 rejection），README VAR zoo d30 FID=1.97。差异 ~0.05，可能在重训误差范围内。</li>
+      <li><strong>硬件门槛高</strong>：训练需要 8+ GPU，最大模型（d30, 2B）需要约 350 epochs × 1.28M images，估算需要数百 GPU-hours。</li>
+      <li><strong>无单元测试</strong>：代码库没有 test suite，不便于验证代码正确性。</li>
+      <li><strong>Attention heatmap 分析缺失</strong>：Appendix 的 token dependency 分析（Fig 9）没有对应代码。</li>
+    </ol>
+  </section>
+
+</div>
+
+<!-- Embedded JSON data for programmatic access -->
+<script type="application/json" id="audit-data">
+{
+  "paper": {
+    "title": "Visual Autoregressive Modeling: Scalable Image Generation via Next-Scale Prediction",
+    "arxiv_id": "2404.02905v2",
+    "claims": [
+      {"text": "First time GPT-style AR models surpass diffusion transformers in image generation", "verdict": "verified"},
+      {"text": "Power-law scaling laws with Pearson coefficients near -0.998", "verdict": "plausible"},
+      {"text": "Zero-shot generalization in in-painting, out-painting, editing", "verdict": "verified"},
+      {"text": "All models and codes released", "verdict": "verified"},
+      {"text": "More data-efficient than DiT (350 vs 1400 epochs)", "verdict": "partially_verifiable"}
+    ],
+    "methods": [
+      "Multi-scale VQVAE with residual quantization",
+      "Next-scale prediction (VAR)",
+      "Block-wise causal attention mask",
+      "AdaLN with class conditioning",
+      "Classifier-Free Guidance",
+      "GPT-2-like decoder-only transformer",
+      "Attention L2 normalization"
+    ],
+    "datasets": ["ImageNet (256x256 & 512x512)", "OpenImages (VQVAE training)"],
+    "metrics": ["FID", "IS", "Precision", "Recall"],
+    "baselines": ["BigGAN", "GigaGAN", "StyleGAN-XL", "ADM", "CDM", "LDM-4", "DiT-XL/2", "L-DiT-3B", "L-DiT-7B", "MaskGIT", "RCG", "VQVAE-2", "VQGAN", "ViT-VQGAN", "RQTransformer"],
+    "tables": 3,
+    "figures": 10,
+    "experiments": 13
+  },
+  "code": {
+    "language": "Python",
+    "total_files": 20,
+    "capabilities": {
+      "has_training": true,
+      "has_evaluation": "partial (validation loss only, FID via external toolkit)",
+      "has_datasets": true,
+      "has_models": true,
+      "has_tests": false,
+      "has_scripts": true,
+      "has_configs": true,
+      "has_readme": true,
+      "has_license": true,
+      "has_requirements": true,
+      "has_docker": false,
+      "has_pretrained": true
+    }
+  },
+  "audit_summary": {
+    "reproducibility": "4/5 - Training code + weights available; VQVAE training & FID eval missing",
+    "method_consistency": "5/5 - All core methods match exactly; no exaggeration detected",
+    "experiment_details": "4/5 - Core hyperparameters match; data preprocessing & hardware not fully documented",
+    "code_coverage": "4/5 - 8/13 experiments directly reproducible; 4 need extra tools; 1 missing",
+    "overall": "This is a well-executed paper with high-quality code. The NeurIPS Best Paper award is supported by the code evidence."
+  }
+}
+</script>
+
+</body>
+</html>
