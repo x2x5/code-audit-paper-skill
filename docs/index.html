@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>code-audit-paper — 论文代码审计技能</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: #f5f7fa;
+    color: #1a1a2e;
+    line-height: 1.8;
+    padding: 0;
+  }
+  .topbar {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar .logo { font-weight: 700; font-size: 1rem; }
+  .topbar .logo span { color: #a5b4fc; }
+  .lang-toggle {
+    background: none;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .lang-toggle:hover { background: #333; color: #fff; border-color: #888; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; }
+  .lang { display: none; }
+  .lang.active { display: block; }
+  h1 { font-size: 2rem; margin-bottom: 8px; }
+  .tagline { font-size: 1.05rem; color: #666; margin-bottom: 36px; }
+  h2 {
+    font-size: 1.25rem;
+    margin: 32px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  h3 { font-size: 1.05rem; margin: 20px 0 8px; color: #444; }
+  p { margin-bottom: 12px; }
+  code {
+    background: #eef2ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+  }
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    margin: 12px 0 20px;
+    line-height: 1.6;
+  }
+  pre .c1 { color: #6c7086; } /* comment */
+  ul, ol { margin: 8px 0 16px 24px; }
+  li { margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+  th, td {
+    border: 1px solid #e0e0e0;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  th { background: #f0f2f5; font-weight: 600; }
+  .badge {
+    display: inline-block;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 4px;
+  }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
+  .feature-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .feature-card h3 { margin: 0 0 6px; border: none; }
+  .feature-card p { margin: 0; font-size: 0.9rem; color: #555; }
+  .footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #999;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+  }
+  a { color: #4338ca; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">📋 code-<span>audit</span>-paper</div>
+  <button class="lang-toggle" id="langBtn" onclick="toggleLang()">🌐 中文</button>
+</div>
+
+<div class="container">
+
+<!-- ========== ENGLISH ========== -->
+<div class="lang active" id="lang-en">
+
+<h1>code-audit-paper</h1>
+<p class="tagline">Audit academic papers — compare claims against actual code.</p>
+
+<p>Given a paper title, this ZCode skill fetches the LaTeX source from arXiv, finds the corresponding repository on GitHub, and analyzes whether the paper's claims and experiments match the actual implementation.</p>
+
+<h2>Quick Start</h2>
+
+<pre><span class="c1"># Install</span>
+git clone git@github.com:x2x5/code-audit-paper.git ~/.agents/skills/code-audit-paper
+
+<span class="c1"># Then in ZCode, type:</span>
+/code-audit-paper &lt;arXiv ID or paper title&gt;
+
+<span class="c1"># Or just say:</span>
+"Audit the paper 'Attention Is All You Need'"</pre>
+
+<h2>What Gets Checked</h2>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>🔁 Reproducibility</h3>
+    <p>Dataset accessibility, pretrained weights, baseline implementations.</p>
+  </div>
+  <div class="feature-card">
+    <h3>🧩 Method Consistency</h3>
+    <p>Does the code match the paper's architecture description?</p>
+  </div>
+  <div class="feature-card">
+    <h3>🔬 Experiment Details</h3>
+    <p>Hyperparameters, preprocessing, evaluation — paper vs code.</p>
+  </div>
+  <div class="feature-card">
+    <h3>📊 Code Coverage</h3>
+    <p>Which experiments actually have corresponding code?</p>
+  </div>
+</div>
+
+<h2>Run Standalone Scripts</h2>
+
+<pre><span class="c1"># 1. Fetch LaTeX from arXiv</span>
+python3 scripts/fetch_arxiv.py "&lt;title&gt;" -o ./output
+
+<span class="c1"># 2. Find &amp; clone code from GitHub</span>
+python3 scripts/fetch_code.py "&lt;title&gt;" -o ./output -l ./output/&lt;name&gt;/latex
+
+<span class="c1"># 3. Audit</span>
+python3 scripts/audit.py ./output/&lt;name&gt;/latex ./output/&lt;name&gt;/code \
+    -o ./output/&lt;name&gt;/audit</pre>
+
+<h2>Output</h2>
+
+<pre>&lt;paper_name&gt;/             <span class="c1"># abbreviation or first 6 words</span>
+├── latex/               <span class="c1"># LaTeX source</span>
+├── code/                <span class="c1"># GitHub code (if available)</span>
+├── audit/               <span class="c1"># audit report</span>
+│   ├── analysis_report.md
+│   ├── full_audit_report.md
+│   └── method_vs_code.md
+├── qa/                  <span class="c1"># Q&A HTML pages</span>
+│   └── introduction.html
+├── paper.json
+└── repo.json</pre>
+
+<h2>Design</h2>
+<ul>
+  <li><strong>No LaTeX?</strong> Stop. No PDF parsing.</li>
+  <li><strong>No GitHub repo?</strong> Say so. Don't fake it.</li>
+  <li><strong>Zero external deps.</strong> Python 3.6+ stdlib + git.</li>
+  <li><strong>Agent judges.</strong> Scripts assist, agent reads LaTeX &amp; code.</li>
+  <li><strong>Reports in Chinese,</strong> Q&A pages in three-column format (EN · plain · ZH).</li>
+</ul>
+
+</div>
+
+<!-- ========== CHINESE ========== -->
+<div class="lang" id="lang-zh">
+
+<h1>code-audit-paper</h1>
+<p class="tagline">论文代码审计——对比论文声明与实际代码实现。</p>
+
+<p>输入论文标题或 arXiv ID，自动去 arXiv 下载 LaTeX 源码，到 GitHub 找对应仓库，然后从 4 个维度审计论文有没有吹牛、有没有隐瞒、实验能不能复现。</p>
+
+<h2>快速开始</h2>
+
+<pre><span class="c1"># 安装</span>
+git clone git@github.com:x2x5/code-audit-paper.git ~/.agents/skills/code-audit-paper
+
+<span class="c1"># 在 ZCode 中触发：</span>
+/code-audit-paper &lt;arXiv ID 或论文标题&gt;
+
+<span class="c1"># 或直接说：</span>
+"帮我审计一下 'Attention Is All You Need'"</pre>
+
+<h2>审计维度</h2>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <h3>🔁 可复现性</h3>
+    <p>数据集能获取吗？预训练权重有吗？baseline 真实现了还是只贴了数字？</p>
+  </div>
+  <div class="feature-card">
+    <h3>🧩 方法一致性</h3>
+    <p>论文描述的方法和代码里的实现是不是一回事？</p>
+  </div>
+  <div class="feature-card">
+    <h3>🔬 实验细节</h3>
+    <p>超参数、预处理、评估方式——论文说的和代码配置一致吗？</p>
+  </div>
+  <div class="feature-card">
+    <h3>📊 代码覆盖率</h3>
+    <p>论文做了哪些实验，哪些在代码里真的有对应实现？</p>
+  </div>
+</div>
+
+<h2>直接跑脚本</h2>
+
+<pre><span class="c1"># 1. 从 arXiv 下载 LaTeX</span>
+python3 scripts/fetch_arxiv.py "&lt;论文标题&gt;" -o ./output
+
+<span class="c1"># 2. 从 GitHub 获取代码</span>
+python3 scripts/fetch_code.py "&lt;论文标题&gt;" -o ./output -l ./output/&lt;论文名&gt;/latex
+
+<span class="c1"># 3. 执行审计</span>
+python3 scripts/audit.py ./output/&lt;论文名&gt;/latex ./output/&lt;论文名&gt;/code \
+    -o ./output/&lt;论文名&gt;/audit</pre>
+
+<h2>输出结构</h2>
+
+<pre>&lt;论文名&gt;/             <span class="c1"># 方法缩写或标题前6词</span>
+├── latex/            <span class="c1"># LaTeX 源码</span>
+├── code/             <span class="c1"># GitHub 代码（如有）</span>
+├── audit/            <span class="c1"># 审计报告</span>
+│   ├── analysis_report.md
+│   ├── full_audit_report.md
+│   └── method_vs_code.md
+├── qa/               <span class="c1"># QA 问答网页</span>
+│   └── introduction.html
+├── paper.json
+└── repo.json</pre>
+
+<h2>设计原则</h2>
+<ul>
+  <li><strong>没有 LaTeX？</strong> 停止，不解析 PDF。</li>
+  <li><strong>搜不到 GitHub？</strong> 如实说，不硬找。</li>
+  <li><strong>零外部依赖，</strong>只要 Python 3.6+ 和 git。</li>
+  <li><strong>代理（agent）做判断，</strong>脚本只是辅助。</li>
+  <li><strong>报告用中文，</strong>问答页三栏对照（英 · 人话 · 中）。</li>
+</ul>
+
+</div>
+
+<div class="footer">
+  <a href="https://github.com/x2x5/code-audit-paper">GitHub</a> &nbsp;·&nbsp; ZCode skill &nbsp;·&nbsp; MIT License
+</div>
+
+</div>
+
+<script>
+function toggleLang() {
+  var en = document.getElementById('lang-en');
+  var zh = document.getElementById('lang-zh');
+  var btn = document.getElementById('langBtn');
+  if (en.classList.contains('active')) {
+    en.classList.remove('active');
+    zh.classList.add('active');
+    btn.textContent = '🌐 English';
+  } else {
+    zh.classList.remove('active');
+    en.classList.add('active');
+    btn.textContent = '🌐 中文';
+  }
+}
+// Respect browser language preference on load
+(function() {
+  var lang = navigator.language || navigator.userLanguage;
+  if (lang && lang.startsWith('zh')) {
+    document.getElementById('lang-en').classList.remove('active');
+    document.getElementById('lang-zh').classList.add('active');
+    document.getElementById('langBtn').textContent = '🌐 English';
+  }
+})();
+</script>
+
+</body>
+</html>
