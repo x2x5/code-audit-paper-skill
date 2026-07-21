@@ -244,6 +244,10 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 论文原文按自然段切分，每个段落做成一张**卡片（card）**，从上到下依次排列。
 网页必须是完备的 HTML，自带样式（不要依赖外部 CDN），在浏览器中直接打开即可正常显示。
 
+**标题规则：** 简洁直接，用 `📄 引言` / `🧪 实验` / `📄 摘要 · 方法 · 结论` 这种格式。
+**不要 subtitle**（不需要论文全名 + arXiv ID 那行副标题）。
+**不要 footer-note**（不需要底部的说明文字）。
+
 ### 三栏对照格式（用于论文解读类问题）
 
 当用户要求翻译/解读论文某章节时，卡片内容分三栏：
@@ -259,28 +263,139 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 - 保留原文的技术准确性，不歪曲原意
 - 对于论文中的核心创新点，可以用高亮块额外注解
 
-### 示例实现
+### 网页模板
 
-参见 `qa/introduction.html` 的写法：
+新建网页时使用以下完整模板。核心要点：
+- 标题简洁（无 subtitle）
+- 无 footer-note
+- 所有样式内联
+- 卡片 body 三栏 grid
 
 ```html
-<!-- 每一段是一个卡片 -->
-<div class="card">
-  <div class="card-body" style="display:grid; grid-template-columns: 1fr 1fr 1fr;">
-    <div class="col col-en">
-      <div class="col-label">🔤 原文</div>
-      ...英文原文...
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>论文解读 — 章节名</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+    background: #f5f7fa;
+    color: #1a1a2e;
+    line-height: 1.7;
+    padding: 40px 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 {
+    font-size: 1.6rem;
+    text-align: center;
+    margin-bottom: 36px;
+    color: #1a1a2e;
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .card-header {
+    background: #f0f2f5;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+  @media (max-width: 800px) {
+    .card-body { grid-template-columns: 1fr; }
+  }
+  .col {
+    padding: 18px 20px;
+    font-size: 0.95rem;
+  }
+  .col-en {
+    background: #fafbfc;
+    border-right: 1px solid #e8e8e8;
+  }
+  .col-plain {
+    background: #f8f9fe;
+    border-right: 1px solid #e8e8e8;
+  }
+  .col-zh { background: #fff; }
+  .col-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  .col-en .col-label { color: #2b6cb0; border-color: #bee3f8; }
+  .col-plain .col-label { color: #38a169; border-color: #c6f6d5; }
+  .col-zh .col-label { color: #c05621; border-color: #fbd38d; }
+  .highlight-box {
+    background: #fffbeb;
+    border: 1px solid #f6e05e;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: #744210;
+    margin-top: 12px;
+  }
+  .info-box {
+    background: #eef2ff;
+    border: 1px solid #a5b4fc;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: #3730a3;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>📄 标题</h1>
+
+  <!-- 卡片示例 -->
+  <div class="card">
+    <div class="card-header">
+      <span>📌 段落标题</span>
+      <span style="font-size:0.8rem;color:#999;">#1</span>
     </div>
-    <div class="col col-plain">
-      <div class="col-label">💡 用人话说</div>
-      ...通俗解释...
-    </div>
-    <div class="col col-zh">
-      <div class="col-label">🀄 中文翻译</div>
-      ...中文翻译...
+    <div class="card-body">
+      <div class="col col-en">
+        <div class="col-label">🔤 原文</div>
+        English original text...
+      </div>
+      <div class="col col-plain">
+        <div class="col-label">💡 用人话说</div>
+        Plain-language explanation...
+      </div>
+      <div class="col col-zh">
+        <div class="col-label">🀄 中文翻译</div>
+        中文翻译...
+      </div>
     </div>
   </div>
+
 </div>
+</body>
+</html>
 ```
 
 ### 当用户有新问题时
