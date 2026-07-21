@@ -4,24 +4,29 @@
 
 **Audit academic papers: compare paper claims against actual code.**
 
-Given a paper title, this tool fetches the LaTeX source from arXiv, finds the corresponding repository on GitHub, and analyzes whether the paper's claims and experiments match the actual implementation.
+Given a paper title, this skill fetches the LaTeX source from arXiv, finds the corresponding repository on GitHub, and analyzes whether the paper's claims and experiments match the actual implementation.
 
-## Two Ways to Use
+## How to Use in ZCode
 
-### A. As a Zed Agent Skill (recommended)
+1. **Install the skill** — clone the repo into your skills directory:
 
-1. Clone the repo to the skills directory:
    ```bash
-   git clone https://github.com/YOUR_USER/code-audit-paper-skill.git ~/.agents/skills/code-audit-paper-skill
+   git clone git@github.com:x2x5/code-audit-paper-skill.git ~/.agents/skills/code-audit-paper
    ```
-2. Restart Zed, then ask the agent:
-   > *"Analyze the paper 'Attention Is All You Need'"*
 
-   The agent will automatically load the skill and walk through the steps.
+2. **Invoke it** — in ZCode, just type:
 
-### B. As Standalone Scripts
+   > `/code-audit-paper <arXiv ID or paper title>`
 
-Run the three Python scripts directly in order:
+   The agent automatically loads the skill, downloads the LaTeX source, searches for the code repo, and runs a comprehensive audit across four dimensions.
+
+   Or simply describe what you want:
+
+   > *"Audit the paper 'Attention Is All You Need'"*
+
+## Run Standalone Scripts
+
+You can also run the three Python scripts directly:
 
 ```bash
 # 1. Fetch LaTeX source from arXiv
@@ -31,14 +36,15 @@ python3 scripts/fetch_arxiv.py "<paper-title>" -o ./output
 python3 scripts/fetch_code.py "<paper-title>" -o ./output -l ./output/<paper-name>/latex
 
 # 3. Audit paper claims vs code
-python3 scripts/audit.py ./output/<paper-name>/latex ./output/<paper-name>/code -o ./output/<paper-name>/audit
+python3 scripts/audit.py ./output/<paper-name>/latex ./output/<paper-name>/code \
+    -o ./output/<paper-name>/audit
 ```
 
 ## Directory Structure
 
 ```
 code-audit-paper-skill/
-├── SKILL.md                  # Zed Agent skill definition
+├── SKILL.md                  # ZCode skill definition
 ├── scripts/
 │   ├── fetch_arxiv.py        # Search arXiv by title → download LaTeX source
 │   ├── fetch_code.py         # Find GitHub URL in LaTeX / search by title → clone repo
@@ -58,13 +64,38 @@ code-audit-paper-skill/
 ├── code/                       # Code from GitHub
 ├── audit/                      # Audit report
 │   ├── analysis_report.md      # Readable Markdown report
-│   └── analysis_data.json      # Structured data for further processing
+│   ├── analysis_data.json      # Structured data for further processing
+│   ├── full_audit_report.md    # Comprehensive manual audit (Sections 0–3)
+│   └── method_vs_code.md       # Method-by-method comparison table
+├── qa/                         # Q&A pages (card-style HTML)
+│   └── introduction.html       # Example: three-column interpretation
 ├── paper.json                  # Paper metadata
 └── repo.json                   # Repository info
 ```
 
+## What Gets Audited
+
+| Section | What it checks |
+|---------|----------------|
+| **0. Reproducibility** | Dataset availability, pretrained weights, baseline implementations |
+| **1. Method Consistency** | Does the code match the paper's architecture description? |
+| **2. Experiment Details** | Hyperparameters, preprocessing, evaluation — paper vs config |
+| **3. Code Coverage** | Which experiments actually have corresponding code? |
+
+## Q&A Module
+
+After the audit, you can ask follow-up questions about the paper. Each question is answered as a self-contained HTML page with paragraph-by-paragraph cards. For interpretation questions, each card shows:
+
+- **Left column:** English original
+- **Middle column:** Chinese translation
+- **Right column:** Plain-language explanation (for non-specialist AI undergraduates)
+
+New questions can be added at any time as new `.html` files in the `qa/` directory.
+
 ## Design Philosophy
 
-- **No LaTeX source?** Stop. No PDF parsing. If you need it, provide a PDF and use MinerU to convert to Markdown.
-- **No GitHub repo found?** Tell the user. If the paper has no code, just say so.
+- **No LaTeX source?** Stop. No PDF parsing.
+- **No GitHub repo found?** Tell the user honestly.
 - **Zero external dependencies.** Python 3.6+ standard library only, plus git.
+- **All reports in Chinese.** Easy to read for a Chinese-speaking audience.
+- **Agent does the thinking.** The scripts are assistants; the agent reads the LaTeX and code to make judgment calls.
