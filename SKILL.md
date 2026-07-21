@@ -22,16 +22,16 @@ description: Given a paper title, fetches LaTeX source from arXiv and code from 
 python3 scripts/fetch_arxiv.py "<query>" --output-dir <base_dir>
 ```
 
-输出目录结构：
-
-```
-<base_dir>/
-  <paper_name>/
-    paper.pdf        # PDF（总是尝试下载）
-    paper.json       # 元数据
-    latex/           # LaTeX 源码（如果有）
-    code/            # 代码仓库（后续步骤）
-```
+	输出目录结构：
+	
+	```
+	<base_dir>/
+	  <paper_name>/                      # 方法缩写 or 标题前6词
+	    paper.pdf        # PDF（总是尝试下载）
+	    paper.json       # 元数据
+	    latex/           # LaTeX 源码（如果有）
+	    code/            # 代码仓库（后续步骤）
+	```
 
 ### 2. 查找并克隆代码仓库
 
@@ -59,9 +59,10 @@ python3 scripts/fetch_code.py "<query>" --output-dir <base_dir> \
 脚本会扫描 LaTeX、搜索 GitHub 并展示结果。你从中选择合适的仓库，
 然后重新加上 `--repo-url` 运行。
 
-**关于论文名 `<paper_name>`：**
-- 如果论文有知名的方法名（如 ResNet、ViT、YOLO），用方法名
-- 否则用 sanitized 后的论文标题（如 deep-network-for-image-segmentation）
+**关于论文名 `<paper_name>`（自动提取，不需要你手动指定）：**
+- 优先检测论文标题中的全大写方法缩写（如 JMVR、ResNet、ViT、DALL-E），用它做目录名
+- 如果没有明显的缩写，取论文标题的**前 6 个单词**，小写用连字符连接（如 `toward-high-fidelity-visual-reconstruction`）
+- 这样目录名简短可读，不再是 `paper-260319667v1` 这种无意义的数字串
 
 **克隆完成后：** 检查仓库内容，判断它是不是有实际代码的论文复现仓库
 （而不是空壳项目、个人主页、或纯文档项目）。
@@ -173,9 +174,26 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 ---
 
-### 最终汇报
+### 4. 生成引言三栏解读（默认执行）
 
-所有报告和文档必须用中文写，易读易懂。给用户一个清晰的总结：
+审计完成后，**默认自动翻译论文的引言（Introduction）**，生成三栏对照网页：
+
+创建 `qa/introduction.html`，将引言按自然段切分，每段一张卡片，每张卡片三栏：
+
+| 左栏 | 中栏 | 右栏 |
+|------|------|------|
+| 🔤 英文原文 | 💡 用人话说一遍 | 🀄 中文翻译 |
+
+**"用人话说"的目标读者：** 非本领域的普通人工智能专业本科生。
+遇到术语要加括号解释，用类比帮助理解，不歪曲原意。
+
+> 这样用户拿到审计报告的同时，也拿到了一份论文引言的通俗解读，可以直接在浏览器打开阅读。
+
+如果用户后续还有更多问题，在 `qa/` 目录下继续新建 `xxx.html` 页面回答。
+
+---
+
+### 最终汇报
 
 ```
 ## 审计总结
@@ -232,8 +250,8 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 | 左栏 | 中栏 | 右栏 |
 |------|------|------|
-| 🔤 英文原文 | 🀄 中文翻译 | 💡 用人话说一遍 |
-| 论文该段落的原始英文 | 准确的中文直译 | 让非本领域读者（普通人工智能专业本科生）也能看懂的解释 |
+| 🔤 英文原文 | 💡 用人话说一遍 | 🀄 中文翻译 |
+| 论文该段落的原始英文 | 让非本领域读者（普通人工智能专业本科生）也能看懂的解释 | 准确的中文直译 |
 
 **"用人话说"的原则：**
 - 遇到专业术语时，在括号里加一句通俗解释（例如：GAN → 生成对抗网络，两个网络互相博弈生成图像）
@@ -250,16 +268,16 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 <div class="card">
   <div class="card-body" style="display:grid; grid-template-columns: 1fr 1fr 1fr;">
     <div class="col col-en">
-      <div class="col-label">🔤 English (Original)</div>
+      <div class="col-label">🔤 原文</div>
       ...英文原文...
-    </div>
-    <div class="col col-zh">
-      <div class="col-label">🀄 中文翻译</div>
-      ...中文翻译...
     </div>
     <div class="col col-plain">
       <div class="col-label">💡 用人话说</div>
       ...通俗解释...
+    </div>
+    <div class="col col-zh">
+      <div class="col-label">🀄 中文翻译</div>
+      ...中文翻译...
     </div>
   </div>
 </div>

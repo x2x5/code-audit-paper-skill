@@ -35,6 +35,62 @@ ARXIV_EPRINT_URL = "https://arxiv.org/e-print"
 # ---------------------------------------------------------------------------
 
 
+def _parse_arxiv_entry(entry, ns: dict) -> dict:
+    """Parse a single Atom entry from the arXiv API into a dict."""
+    title_el = entry.find("atom:title", ns)
+    title = (
+        title_el.text.strip().replace("\n", " ")
+        if title_el is not None
+        else "Unknown"
+    )
+
+    id_el = entry.find("atom:id", ns)
+    arxiv_id = ""
+    if id_el is not None:
+        m = re.search(r"/(\d+\.\d+)(v\d+)?", id_el.text)
+        if m:
+            arxiv_id = m.group(1) + (m.group(2) or "")
+
+    summary_el = entry.find("atom:summary", ns)
+    summary = (
+        summary_el.text.strip().replace("\n", " ") if summary_el is not None else ""
+    )
+
+    authors = []
+    for author in entry.findall("atom:author", ns):
+        name_el = author.find("atom:name", ns)
+        if name_el is not None:
+            authors.append(name_el.text)
+
+    return {
+        "id": arxiv_id,
+        "title": title,
+        "summary": summary[:500],
+        "authors": authors,
+    }
+
+
+def fetch_by_arxiv_id(arxiv_id: str) -> list[dict]:
+    """Fetch paper metadata from arXiv API by ID."""
+    base_id = re.sub(r"v\d+$", "", arxiv_id)
+    params = {"id_list": base_id}
+    url = f"{ARXIV_API_URL}?{urllib.parse.urlencode(params)}"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "PaperCodeAudit/1.0"})
+        resp = urllib.request.urlopen(req, timeout=30)
+        xml_data = resp.read().decode("utf-8")
+        ns = {
+            "atom": "http://www.w3.org/2005/Atom",
+            "arxiv": "http://arxiv.org/schemas/atom",
+        }
+        root = ET.fromstring(xml_data)
+        entries = root.findall("atom:entry", ns)
+        return [_parse_arxiv_entry(e, ns) for e in entries]
+    except Exception as e:
+        print(f"  Warning: could not fetch metadata for arXiv ID {arxiv_id}: {e}")
+        return []
+
+
 def search_arxiv(query: str, max_results: int = 5) -> list[dict]:
     """Search arXiv by title. Returns a list of result dicts."""
     params = {
@@ -58,39 +114,7 @@ def search_arxiv(query: str, max_results: int = 5) -> list[dict]:
 
     results = []
     for entry in entries:
-        title_el = entry.find("atom:title", ns)
-        title = (
-            title_el.text.strip().replace("\n", " ")
-            if title_el is not None
-            else "Unknown"
-        )
-
-        id_el = entry.find("atom:id", ns)
-        arxiv_id = ""
-        if id_el is not None:
-            m = re.search(r"/(\d+\.\d+)(v\d+)?", id_el.text)
-            if m:
-                arxiv_id = m.group(1) + (m.group(2) or "")
-
-        summary_el = entry.find("atom:summary", ns)
-        summary = (
-            summary_el.text.strip().replace("\n", " ") if summary_el is not None else ""
-        )
-
-        authors = []
-        for author in entry.findall("atom:author", ns):
-            name_el = author.find("atom:name", ns)
-            if name_el is not None:
-                authors.append(name_el.text)
-
-        results.append(
-            {
-                "id": arxiv_id,
-                "title": title,
-                "summary": summary[:500],
-                "authors": authors,
-            }
-        )
+        results.append(_parse_arxiv_entry(entry, ns))
 
     return results
 
@@ -247,12 +271,36 @@ def download_source(arxiv_id: str, output_dir: str) -> None:
 
 
 def sanitize_paper_name(title: str) -> str:
-    """Turn a paper title into a safe, short directory name."""
-    name = title.lower().strip()
-    name = re.sub(r"[^a-z0-9\s-]", "", name)
-    name = re.sub(r"[\s-]+", "-", name)
-    name = name[:80].strip("-")
-    return name
+    """Turn a paper title into a short directory name.
+
+    Strategy (in order):
+      1. If the title contains an all-caps abbreviation that looks like a
+         method name (e.g. JMVR, ViT, ResNet, DALL-E), use that.
+      2. Otherwise use the first 6 words of the title, joined by hyphens.
+    """
+    # Try to find a method-like abbreviation: 2–8 uppercase chars, optionally
+    # with digits or hyphens, that appears as a standalone word.
+    abbr_match = re.search(r"(?:^|\s)([A-Z][A-Z0-9]+(?:[-_][A-Z0-9]+)*)(?:\s|\.|,|:|;|$)", title)
+    if abbr_match:
+        candidate = abbr_match.group(1)
+        # Generic terms that should not be treated as method names
+        GENERIC_ABBR = {"IEEE", "ACM", "SOTA", "GAN", "CNN", "RNN", "LSTM",
+                        "GRU", "PDF", "HTML", "XML", "JSON", "API", "CPU",
+                        "GPU", "AI", "ML", "NLP", "CV", "ReLU", "MSE", "CE",
+                        "EMD", "SSIM", "PSNR", "CLIP", "VAE", "ODE", "SGD",
+                        "Adam", "ReLU", "GPT", "BERT", "T5", "LLM", "ReLU"}
+        if candidate not in GENERIC_ABBR:
+            return candidate.lower()
+
+    # Fallback: take first 6 words
+    words = re.findall(r"[a-zA-Z0-9]+", title)
+    selected = words[:6]
+    if not selected:
+        return "paper"
+    name = "-".join(w.lower() for w in selected)
+    # Strip trailing non-alphanumeric
+    name = re.sub(r"[^a-z0-9-]+$", "", name)
+    return name[:60].strip("-")
 
 
 # ---------------------------------------------------------------------------
@@ -283,9 +331,12 @@ def main() -> None:
     arxiv_id_match = re.match(r"^(\d+\.\d+)(v\d+)?$", query)
     if arxiv_id_match:
         print(f"Input recognised as arXiv ID: {query}")
-        results = [
-            {"id": query, "title": f"Paper {query}", "authors": [], "summary": ""}
-        ]
+        results = fetch_by_arxiv_id(query)
+        if not results:
+            # Fallback: use the ID itself
+            results = [
+                {"id": query, "title": f"Paper {query}", "authors": [], "summary": ""}
+            ]
     else:
         print(f'Searching arXiv for: "{query}"')
         results = search_arxiv(query, args.max_results)

@@ -87,8 +87,8 @@ code-audit-paper-skill/
 After the audit, you can ask follow-up questions about the paper. Each question is answered as a self-contained HTML page with paragraph-by-paragraph cards. For interpretation questions, each card shows:
 
 - **Left column:** English original
-- **Middle column:** Chinese translation
-- **Right column:** Plain-language explanation (for non-specialist AI undergraduates)
+- **Middle column:** Plain-language explanation (for non-specialist AI undergraduates)
+- **Right column:** Chinese translation
 
 New questions can be added at any time as new `.html` files in the `qa/` directory.
 
