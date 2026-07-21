@@ -11,144 +11,167 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
     background: #f8fafc;
     color: #1e293b;
-    line-height: 1.7;
+    line-height: 1.65;
   }
 
   /* ── 顶栏 ── */
   .topbar {
-    background: #ffffff;
-    padding: 14px 28px;
+    background: #fff;
+    padding: 12px 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0; z-index: 100;
     border-bottom: 1px solid #e2e8f0;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
   }
-  .topbar .logo { font-weight: 700; font-size: 1rem; color: #1e293b; }
+  .topbar .logo { font-weight: 700; font-size: 0.95rem; color: #1e293b; }
   .topbar .logo span { color: #6366f1; }
   .lang-toggle {
     background: #f1f5f9;
     border: 1px solid #cbd5e1;
     color: #475569;
-    padding: 6px 16px;
+    padding: 5px 14px;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-family: inherit;
     transition: all 0.2s;
   }
   .lang-toggle:hover { background: #e2e8f0; color: #1e293b; }
 
   /* ── 主容器 ── */
-  .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 36px 20px 60px; }
   .lang { display: none; }
   .lang.active { display: block; }
 
   h1 {
     text-align: center;
-    font-size: 1.9rem;
-    margin-bottom: 6px;
+    font-size: 1.7rem;
+    margin-bottom: 4px;
     color: #0f172a;
     font-weight: 800;
   }
   .subtitle {
     text-align: center;
     color: #64748b;
-    font-size: 0.95rem;
-    margin-bottom: 48px;
+    font-size: 0.9rem;
+    margin-bottom: 36px;
   }
 
-  /* ── 流程图容器 ── */
-  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  /* ═══════════════════════════════════════════════ */
+  /*  两栏布局                                       */
+  /* ═══════════════════════════════════════════════ */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    position: relative;
+  }
+
+  /* ── 中间分割线 ── */
+  .two-col::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #f59e0b 0%, #f59e0b 30%, #a78bfa 70%, #a78bfa 100%);
+    opacity: 0.3;
+    z-index: 0;
+  }
+
+  /* ── 列 ── */
+  .col-left, .col-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+  .col-left { padding-right: 28px; }
+  .col-right { padding-left: 28px; }
 
   /* ── 阶段标签 ── */
   .phase-label {
     text-align: center;
     font-weight: 800;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
+    font-size: 0.82rem;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    margin: 16px 0 8px;
-    padding: 8px 20px;
+    margin-bottom: 6px;
+    padding: 7px 18px;
     border-radius: 20px;
     display: inline-block;
   }
-  .phase-label.phase-1 {
+  .phase-1 {
     background: #fef3c7;
     color: #92400e;
     border: 1px solid #fde68a;
   }
-  .phase-label.phase-2 {
+  .phase-2 {
     background: #ede9fe;
     color: #5b21b6;
     border: 1px solid #ddd6fe;
   }
 
-  /* ── 阶段说明 ── */
-  .phase-desc {
+  .phase-model {
     text-align: center;
-    font-size: 0.82rem;
-    color: #64748b;
-    max-width: 560px;
-    margin: 0 auto 24px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin-bottom: 18px;
+    max-width: 280px;
   }
 
   /* ── 卡片 ── */
   .card {
-    background: #ffffff;
+    background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 22px 26px;
+    border-radius: 12px;
+    padding: 16px 18px;
     width: 100%;
-    max-width: 560px;
+    max-width: 380px;
     position: relative;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 3px rgba(0,0,0,.03);
     transition: box-shadow 0.2s, transform 0.15s;
+    margin-bottom: 0;
   }
   .card:hover {
-    box-shadow: 0 4px 16px rgba(99,102,241,0.12);
+    box-shadow: 0 4px 14px rgba(99,102,241,.10);
     transform: translateY(-1px);
   }
   .card .title {
     font-weight: 700;
-    font-size: 1.05rem;
-    margin-bottom: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     color: #0f172a;
   }
-  .card .title .icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    flex-shrink: 0;
-    background: #eef2ff;
-  }
   .card .desc {
-    font-size: 0.9rem;
+    font-size: 0.83rem;
     color: #475569;
-    margin-bottom: 4px;
+    line-height: 1.6;
   }
   .card .detail {
-    font-size: 0.83rem;
+    font-size: 0.78rem;
     color: #94a3b8;
-    margin-top: 4px;
+    margin-top: 3px;
   }
   .card .code {
-    font-size: 0.78rem;
+    font-size: 0.73rem;
     color: #6366f1;
-    margin-top: 8px;
+    margin-top: 6px;
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
     background: #f1f5f9;
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: 4px 8px;
+    border-radius: 5px;
     display: inline-block;
+    word-break: break-all;
   }
 
   /* ── 步骤编号圆标 ── */
@@ -156,11 +179,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 26px; height: 26px;
+    width: 24px; height: 24px;
     border-radius: 50%;
     background: #6366f1;
     color: #fff;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     flex-shrink: 0;
   }
@@ -168,9 +191,10 @@
   /* ── 向下箭头 ── */
   .arrow-down {
     width: 2px;
-    height: 40px;
-    background: linear-gradient(to bottom, #6366f1, #818cf8);
+    height: 28px;
+    background: linear-gradient(to bottom, #818cf8, #a5b4fc);
     position: relative;
+    flex-shrink: 0;
   }
   .arrow-down::after {
     content: '';
@@ -178,63 +202,33 @@
     bottom: -1px;
     left: 50%;
     transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #818cf8;
+    border: 5px solid transparent;
+    border-top-color: #a5b4fc;
   }
 
-  /* ── 分支行 ── */
-  .branch-row {
+  /* ── 分支标示（卡片内嵌小分支） ── */
+  .inline-branch {
     display: flex;
-    gap: 28px;
-    width: 100%;
-    max-width: 660px;
-    position: relative;
-    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 0.76rem;
+    flex-wrap: wrap;
   }
-  .branch-row::before {
-    content: '';
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    width: 2px;
-    height: 40px;
-    background: #cbd5e1;
+  .inline-branch .br-ok {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
   }
-  .branch-row::after {
-    content: '';
-    position: absolute;
-    top: -40px;
-    left: 18%;
-    width: 64%;
-    height: 2px;
-    background: #cbd5e1;
-  }
-
-  .branch-card { flex: 1; max-width: 290px; }
-  .branch-card .card { max-width: 100%; padding: 16px 18px; }
-  .branch-label {
-    text-align: center;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #f59e0b;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  /* ── 汇合/分叉竖线 ── */
-  .split-arrow {
-    width: 100%;
-    max-width: 660px;
-    height: 40px;
-    position: relative;
-  }
-  .split-arrow::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 50%;
-    width: 2px; height: 100%;
-    background: #cbd5e1;
+  .inline-branch .br-no {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
   }
 
   /* ── 停止卡片 ── */
@@ -243,147 +237,102 @@
     background: #fef2f2;
   }
   .card.stop .title { color: #dc2626; }
-  .card.stop .desc { color: #991b1b; }
-  .card.stop .detail { color: #b91c1c; }
 
-  /* ── 分支引出线 ── */
-  .arrow-branch {
-    width: 100%;
-    max-width: 660px;
-    height: 40px;
-    position: relative;
+  /* ── 交接卡片（最后一个，高亮） ── */
+  .card.handoff {
+    border-color: #f59e0b;
+    border-width: 2px;
+    background: #fffdf5;
   }
-  .arrow-branch::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 50%;
-    width: 2px; height: 22px;
-    background: #818cf8;
-  }
-  .arrow-branch::after {
-    content: '';
-    position: absolute;
-    top: 22px; left: 18%;
-    width: 64%;
-    height: 2px;
-    background: #cbd5e1;
-  }
+  .card.handoff .step-badge { background: #f59e0b; }
 
-  /* ── 审计子维度卡片 ── */
-  .sub-flow {
-    display: flex;
-    gap: 14px;
-    width: 100%;
-    max-width: 660px;
-    flex-wrap: wrap;
-    justify-content: center;
+  /* ── 审计子维度（紧凑版） ── */
+  .audit-dims {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 8px;
   }
-  .sub-card {
-    background: #ffffff;
+  .dim-chip {
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 16px 18px;
-    flex: 1;
-    min-width: 140px;
-    max-width: 190px;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.75rem;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-    transition: box-shadow 0.2s, transform 0.15s;
   }
-  .sub-card:hover {
-    box-shadow: 0 4px 14px rgba(99,102,241,0.10);
-    transform: translateY(-1px);
-  }
-  .sub-card .sub-icon { font-size: 1.4rem; margin-bottom: 6px; }
-  .sub-card .sub-title { font-weight: 700; font-size: 0.88rem; color: #0f172a; }
-  .sub-card .sub-desc { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
+  .dim-chip .dim-icon { font-size: 1.1rem; display: block; margin-bottom: 2px; }
+  .dim-chip .dim-title { font-weight: 700; color: #334155; }
+  .dim-chip .dim-sub { color: #94a3b8; font-size: 0.7rem; margin-top: 1px; }
 
-  .arrow-sub-down {
-    width: 2px;
-    height: 28px;
-    background: #cbd5e1;
-    position: relative;
+  /* ── 完成卡片 ── */
+  .card.done {
+    border-color: #22c55e;
+    border-width: 2px;
+    background: #f0fdf4;
   }
-  .arrow-sub-down::after {
-    content: '';
+  .card.done .step-badge { background: #22c55e; }
+
+  /* ── 中间交接指示 ── */
+  .handoff-indicator {
     position: absolute;
-    bottom: -1px;
     left: 50%;
     transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
   }
-
-  /* ── 分隔文字 ── */
-  .section-divider {
-    text-align: center;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #6366f1;
-    letter-spacing: 2px;
-    margin: 10px 0;
-    text-transform: uppercase;
-  }
-
-  /* ── 交接分割区 ── */
-  .handoff-divider {
-    width: 100%;
-    max-width: 660px;
-    margin: 32px 0;
+  .handoff-arrow-right {
+    width: 40px;
+    height: 2px;
+    background: #f59e0b;
     position: relative;
-    text-align: center;
   }
-  .handoff-divider::before {
+  .handoff-arrow-right::after {
     content: '';
     position: absolute;
+    right: -1px;
     top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: repeating-linear-gradient(
-      to right,
-      #f59e0b 0px, #f59e0b 8px,
-      transparent 8px, transparent 16px
-    );
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-left-color: #f59e0b;
   }
-  .handoff-badge {
-    display: inline-block;
-    position: relative;
+  .handoff-badge-sm {
     background: #fffbeb;
-    border: 2px solid #f59e0b;
-    border-radius: 24px;
-    padding: 12px 28px;
-    font-weight: 800;
-    font-size: 0.9rem;
+    border: 1.5px solid #f59e0b;
+    border-radius: 14px;
+    padding: 5px 12px;
+    font-weight: 700;
+    font-size: 0.7rem;
     color: #92400e;
-  }
-  .handoff-sub {
-    text-align: center;
-    font-size: 0.82rem;
-    color: #64748b;
-    max-width: 520px;
-    margin: 8px auto 0;
+    white-space: nowrap;
   }
 
   /* ── 页脚 ── */
   .footer {
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: #94a3b8;
-    margin-top: 48px;
-    padding-top: 24px;
+    margin-top: 40px;
+    padding-top: 20px;
     border-top: 1px solid #e2e8f0;
   }
   .footer a { color: #6366f1; text-decoration: none; }
   .footer a:hover { text-decoration: underline; }
 
-  /* ── 响应式 ── */
-  @media (max-width: 640px) {
-    .branch-row { flex-direction: column; align-items: center; }
-    .branch-row::after { display: none; }
-    .branch-card { max-width: 100%; width: 100%; }
-    .sub-flow { flex-direction: column; align-items: center; }
-    .sub-card { max-width: 100%; width: 100%; }
+  /* ── 响应式：窄屏变上下排列 ── */
+  @media (max-width: 750px) {
+    .two-col {
+      grid-template-columns: 1fr;
+    }
+    .two-col::before { display: none; }
+    .col-left, .col-right {
+      padding: 0 10px;
+    }
+    .col-left { padding-right: 10px; margin-bottom: 24px; }
+    .col-right { padding-left: 10px; }
+    .card { max-width: 100%; }
   }
 </style>
 </head>
@@ -396,270 +345,131 @@
 
 <div class="container">
 
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!--                       ENGLISH                              -->
-<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════ -->
+<!--                   ENGLISH                      -->
+<!-- ═══════════════════════════════════════════════ -->
 <div class="lang active" id="lang-en">
 
 <h1>🔍 Audit Flow</h1>
-<p class="subtitle">Two-phase design — cheap model for prep work, smart model for deep analysis</p>
+<p class="subtitle">Two phases, two models — cheap for prep, smart for analysis</p>
 
-<div class="flow">
+<div class="two-col">
 
-  <!-- ═══ PHASE 1 LABEL ═══ -->
-  <span class="phase-label phase-1">⚡ Phase 1 · Preparation</span>
-  <p class="phase-desc">
-    Run this phase with a <strong>cheap model</strong> (e.g. DeepSeek Flash).
-    Download everything, run the automated script, then <strong>stop and output a handoff prompt</strong>.
-    No deep analysis — that's Phase 2's job.
-  </p>
+  <!-- ═══ LEFT: Phase 1 ═══ -->
+  <div class="col-left">
 
-  <!-- STEP 1: Env Check -->
-  <div class="card">
-    <div class="title"><span class="step-badge">1</span> 🔧 Environment Check</div>
-    <div class="desc">
-      Before anything else, check which commands are available: Is it
-      <code>python</code> or <code>python3</code>? <code>pip</code> or <code>pip3</code>?
-      Is <code>git</code> installed? <code>curl</code> or <code>wget</code>?
+    <span class="phase-label phase-1">⚡ Phase 1 · Preparation</span>
+    <p class="phase-model">Run with a <strong>cheap model</strong><br>(e.g. DeepSeek Flash)</p>
+
+    <!-- Step 1 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">1</span> 🔧 Environment Check</div>
+      <div class="desc">Check what's available: <code>python</code> or <code>python3</code>? <code>git</code>? <code>curl</code>? Record the correct commands — different systems name them differently.</div>
     </div>
-    <div class="detail">
-      💡 Different systems name these differently. Running the wrong command
-      causes pointless errors. Check once, use the right name everywhere.
-      <strong>If git or Python is missing → abort with a clear message.</strong>
-    </div>
-  </div>
-  <div class="arrow-down"></div>
+    <div class="arrow-down"></div>
 
-  <!-- STEP 2: Parse Input -->
-  <div class="card">
-    <div class="title"><span class="step-badge">2</span> 📥 Parse the Input</div>
-    <div class="desc">
-      You give the tool a paper reference — an <strong>arXiv ID</strong> (like <code>2301.12345</code>),
-      a <strong>full paper title</strong>, or a <strong>complete arXiv URL</strong>.
-      The tool figures out which paper you mean and creates a clean folder name
-      (the method acronym like "ResNet" or the first six words of the title).
+    <!-- Step 2 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">2</span> 📥 Parse Input</div>
+      <div class="desc">Accept arXiv ID, paper title, or full URL. Automatically figure out the paper and create a clean folder name.</div>
     </div>
-  </div>
-  <div class="arrow-down"></div>
+    <div class="arrow-down"></div>
 
-  <!-- STEP 3: Download -->
-  <div class="card">
-    <div class="title"><span class="step-badge">3</span> 📄 Download from arXiv</div>
-    <div class="desc">
-      Fetches <strong>two things</strong> via the arXiv API:
-    </div>
-    <div class="detail">
-      <strong>① The PDF</strong> — the typeset paper. Almost always available.<br>
-      <strong>② The LaTeX source bundle</strong> — the raw <code>.tex</code> files.
-      This is crucial: without it we can't scan for GitHub links or parse claims.
-    </div>
-  </div>
-  <div class="arrow-branch"></div>
-
-  <!-- BRANCH: LaTeX? -->
-  <div class="branch-row">
-    <div class="branch-card">
-      <div class="branch-label">✅ LaTeX found</div>
-      <div class="card">
-        <div class="title">📄 Source saved</div>
-        <div class="desc">Extracted to <code>latex/</code>. All <code>.tex</code> and <code>.bib</code> files ready.</div>
+    <!-- Step 3 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">3</span> 📄 Download from arXiv</div>
+      <div class="desc">Fetch PDF + LaTeX source bundle via arXiv API. The <code>.tex</code> files are key — without them we can't scan for GitHub links or parse claims.</div>
+      <div class="inline-branch">
+        <span class="br-ok">✅ LaTeX → continue</span>
+        <span class="br-no">❌ No LaTeX → skip to handoff</span>
       </div>
     </div>
-    <div class="branch-card">
-      <div class="branch-label">❌ No LaTeX</div>
-      <div class="card stop">
-        <div class="title">⛔ Skip to handoff</div>
-        <div class="desc">arXiv has no <code>.tex</code> source. Note this in the handoff prompt — Phase 2 can only do a limited PDF-only review.</div>
+    <div class="arrow-down"></div>
+
+    <!-- Step 4 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">4</span> 🔗 Find &amp; Clone Code</div>
+      <div class="desc">Scan LaTeX for GitHub links. Identify the <strong>actual code repo</strong> (skip datasets, dependencies). If not found, search GitHub by title. Clone and verify it has real code.</div>
+      <div class="inline-branch">
+        <span class="br-ok">✅ Has code → continue</span>
+        <span class="br-no">❌ No code → skip to handoff</span>
       </div>
     </div>
-  </div>
-  <div class="split-arrow"></div>
+    <div class="arrow-down"></div>
 
-  <!-- STEP 4: Find Code -->
-  <div class="card">
-    <div class="title"><span class="step-badge">4</span> 🔗 Find &amp; Clone Code</div>
-    <div class="desc">
-      Reads every LaTeX file to find <strong>GitHub links</strong> inside
-      <code>\url{}</code>, <code>\href{}{}</code>, and nearby text.
-      Identifies which link points to the <strong>actual code repository</strong>
-      (skips datasets, dependencies, personal pages).
+    <!-- Step 5 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">5</span> 🧪 Run Automated Audit</div>
+      <div class="desc">Parse LaTeX claims, analyze code structure, cross-reference. Generates <code>audit/audit_report.html</code> — a scaffold with paper overview, code stats, and placeholder areas for the deep audit.</div>
     </div>
-    <div class="detail">
-      🔎 If no link is found in the LaTeX, falls back to searching GitHub
-      by paper title. Once identified, <strong>clones</strong> the repo into
-      <code>code/</code> and verifies it contains actual code (not just a README).
-    </div>
-  </div>
-  <div class="arrow-branch"></div>
+    <div class="arrow-down"></div>
 
-  <!-- BRANCH: Repo? -->
-  <div class="branch-row">
-    <div class="branch-card">
-      <div class="branch-label">✅ Repo found &amp; has code</div>
-      <div class="card">
-        <div class="title">📦 Code ready</div>
-        <div class="desc">Cloned to <code>code/</code>. Real implementation files present.</div>
+    <!-- Step 6 -->
+    <div class="card handoff">
+      <div class="title"><span class="step-badge">6</span> 📋 Output Handoff Prompt</div>
+      <div class="desc"><strong>Phase 1 ends here.</strong> Output a self-contained prompt with all paths, stats, and a 7-step task list for Phase 2. Do <strong>not</strong> do any deep analysis.</div>
+      <div class="detail" style="margin-top:4px;">📋 User copies prompt → opens new session → switches to smart model → pastes → Phase 2 begins.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══ RIGHT: Phase 2 ═══ -->
+  <div class="col-right">
+
+    <span class="phase-label phase-2">🧠 Phase 2 · Deep Analysis</span>
+    <p class="phase-model">Run with a <strong>smart model</strong><br>(e.g. DeepSeek Pro)</p>
+
+    <!-- Step 7 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">7</span> 📖 Read All Materials</div>
+      <div class="desc">Open <code>audit_report.html</code> to see the automated scan. Read the LaTeX source (abstract, intro, method, experiments). Browse the code structure and key files.</div>
+      <div class="detail">🎯 Everything is already downloaded — you start with full context.</div>
+    </div>
+    <div class="arrow-down"></div>
+
+    <!-- Step 8 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">8</span> 🔬 Four-Dimension Deep Audit</div>
+      <div class="desc">Go through each dimension and <strong>write findings into <code>audit_report.html</code></strong> (placeholder sections are ready).</div>
+      <div class="audit-dims">
+        <div class="dim-chip">
+          <span class="dim-icon">🔁</span>
+          <span class="dim-title">Reproducibility</span>
+          <span class="dim-sub">Datasets, weights, baselines</span>
+        </div>
+        <div class="dim-chip">
+          <span class="dim-icon">🧩</span>
+          <span class="dim-title">Method Consistency</span>
+          <span class="dim-sub">Paper claims vs. code</span>
+        </div>
+        <div class="dim-chip">
+          <span class="dim-icon">🔬</span>
+          <span class="dim-title">Experiment Details</span>
+          <span class="dim-sub">Hyperparams, preprocessing</span>
+        </div>
+        <div class="dim-chip">
+          <span class="dim-icon">📊</span>
+          <span class="dim-title">Code Coverage</span>
+          <span class="dim-sub">Which experiments have code?</span>
+        </div>
       </div>
     </div>
-    <div class="branch-card">
-      <div class="branch-label">❌ No repo / empty</div>
-      <div class="card stop">
-        <div class="title">⛔ Skip to handoff</div>
-        <div class="desc">Note in the handoff prompt: code is unavailable. Phase 2 can only review the paper text.</div>
-      </div>
-    </div>
-  </div>
-  <div class="split-arrow"></div>
+    <div class="arrow-down"></div>
 
-  <!-- STEP 5: Run Audit Script -->
-  <div class="card">
-    <div class="title"><span class="step-badge">5</span> 🧪 Run Automated Audit</div>
-    <div class="desc">
-      The audit script parses LaTeX claims, analyzes code structure,
-      and cross-references them — all automatically. Outputs a single
-      <strong>HTML page</strong>: <code>audit/audit_report.html</code>
-      (open it in any browser).
+    <!-- Step 9 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">9</span> 💬 Generate QA Pages</div>
+      <div class="desc">Translate the Introduction into a three-column HTML page: English original · plain-language explanation · Chinese translation. Each paragraph is a card.</div>
+      <div class="code">qa/introduction.html · qa/method.html · …</div>
     </div>
-    <div class="detail">
-      📊 This generates the <strong>scaffold</strong> for Phase 2: paper overview,
-      code stats, method/dataset matching, extracted claims, key files, and a
-      summary section with <strong>placeholder areas</strong> for the deep audit.
-    </div>
-  </div>
-  <div class="arrow-down"></div>
+    <div class="arrow-down"></div>
 
-  <!-- STEP 6: Output Handoff Prompt -->
-  <div class="card" style="border-color:#f59e0b; border-width:2px;">
-    <div class="title"><span class="step-badge" style="background:#f59e0b;">6</span> 📋 Output Handoff Prompt</div>
-    <div class="desc">
-      Phase 1 ends here. <strong>Do NOT do any deep analysis.</strong>
-      Instead, output a self-contained handoff prompt that includes:
-    </div>
-    <div class="detail">
-      • Paper title, arXiv ID, and all directory paths<br>
-      • Summary of what was downloaded (LaTeX, code, audit report)<br>
-      • Key stats from the automated scan<br>
-      • A complete 7-step task list for Phase 2<br>
-      • Instructions for where to write findings in audit_report.html
-    </div>
-    <div class="detail" style="margin-top:6px;">
-      📋 The user <strong>copies this prompt</strong>, opens a <strong>new session</strong>,
-      switches to a <strong>smart model</strong> (e.g. DeepSeek Pro), pastes it,
-      and Phase 2 begins — with no context lost.
-    </div>
-  </div>
-
-  <!-- ═══ HANDOFF DIVIDER ═══ -->
-  <div class="handoff-divider">
-    <div class="handoff-badge">📋 复制提示词 · 切换模型 · 粘贴到新窗口  📋</div>
-  </div>
-  <p class="handoff-sub">
-    ⬆️ Phase 1 ends here &nbsp;·&nbsp; User switches from cheap model to smart model &nbsp;·&nbsp; Phase 2 begins below ⬇️
-  </p>
-
-  <!-- ═══ PHASE 2 LABEL ═══ -->
-  <span class="phase-label phase-2" style="margin-top:8px;">🧠 Phase 2 · Deep Analysis</span>
-  <p class="phase-desc">
-    Run this phase with a <strong>smart model</strong> (e.g. DeepSeek Pro).
-    Read the paper, read the code, compare every claim, and write findings into
-    <code>audit/audit_report.html</code>. Then generate QA pages.
-  </p>
-
-  <!-- STEP 7: Read Materials -->
-  <div class="card">
-    <div class="title"><span class="step-badge">7</span> 📖 Read All Materials</div>
-    <div class="desc">
-      Open <code>audit/audit_report.html</code> to see the automated scan results.
-      Read the LaTeX source (focus: abstract, introduction, method, experiments).
-      Browse the code repository structure and key implementation files.
-    </div>
-    <div class="detail">
-      🎯 Everything is already downloaded. You're starting with a full picture
-      of what the paper claims and what the code contains.
-    </div>
-  </div>
-  <div class="arrow-down"></div>
-
-  <!-- STEP 8: 4-Dimension Audit -->
-  <div class="card">
-    <div class="title"><span class="step-badge">8</span> 🔬 Four-Dimension Deep Audit</div>
-    <div class="desc">
-      Go through each dimension and <strong>write findings directly into
-      <code>audit/audit_report.html</code></strong> (the HTML has placeholder
-      sections ready for you to fill in):
-    </div>
-  </div>
-  <div class="arrow-down"></div>
-
-  <div class="section-divider">▼ Four Audit Dimensions ▼</div>
-  <div class="sub-flow">
-
-    <div class="sub-card">
-      <div class="sub-icon">🔁</div>
-      <div class="sub-title">Reproducibility</div>
-      <div class="sub-desc">
-        Are datasets available with download scripts? Are pretrained weights
-        provided? Are baseline methods actually implemented, or just numbers
-        copied from other papers?
-      </div>
+    <!-- Done -->
+    <div class="card done">
+      <div class="title"><span class="step-badge">✓</span> Audit Complete</div>
+      <div class="desc">Complete <code>audit_report.html</code> with all four dimensions filled in, plus QA pages. All self-contained HTML — open in any browser.</div>
     </div>
 
-    <div class="sub-card">
-      <div class="sub-icon">🧩</div>
-      <div class="sub-title">Method Consistency</div>
-      <div class="sub-desc">
-        Line-by-line: what the paper <em>says</em> vs. what the code
-        <em>does</em>. Catch exaggerations — "novel attention mechanism"
-        that's just standard multi-head attention.
-      </div>
-    </div>
-
-    <div class="sub-card">
-      <div class="sub-icon">🔬</div>
-      <div class="sub-title">Experiment Details</div>
-      <div class="sub-desc">
-        Hyperparameters, data preprocessing, evaluation metrics — does the
-        paper's description match the config files and training scripts?
-      </div>
-    </div>
-
-    <div class="sub-card">
-      <div class="sub-icon">📊</div>
-      <div class="sub-title">Code Coverage</div>
-      <div class="sub-desc">
-        For every experiment, table, and figure in the paper: is there
-        corresponding code? Flags results that can't be reproduced.
-      </div>
-    </div>
-
-  </div>
-  <div class="arrow-sub-down"></div>
-
-  <!-- STEP 9: QA Pages -->
-  <div class="card">
-    <div class="title"><span class="step-badge">9</span> 💬 Generate QA Pages</div>
-    <div class="desc">
-      <strong>Default:</strong> translate the Introduction into a three-column HTML page
-      (<code>qa/introduction.html</code>) — English original · plain-language explanation · Chinese translation.
-    </div>
-    <div class="detail">
-      📝 Each paragraph becomes a <strong>card</strong>. Readers can browse the
-      paper like an annotated bilingual guide. Follow-up questions get their own
-      pages in <code>qa/</code> — same card-based style, one HTML file per question.
-    </div>
-    <div class="code">qa/introduction.html &nbsp;·&nbsp; qa/method.html &nbsp;·&nbsp; qa/experiments.html &nbsp;·&nbsp; …</div>
-  </div>
-  <div class="arrow-down"></div>
-
-  <!-- DONE -->
-  <div class="card" style="border-color:#22c55e; border-width:2px;">
-    <div class="title"><span class="step-badge" style="background:#22c55e;">✓</span> Audit Complete</div>
-    <div class="desc">
-      The user now has a complete <code>audit/audit_report.html</code> with all
-      four dimensions filled in, plus QA pages for the introduction and any
-      follow-up questions. Everything is in self-contained HTML files — open
-      in any browser, no server needed.
-    </div>
   </div>
 
 </div>
@@ -670,262 +480,131 @@
 </div>
 
 
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!--                       中文                                  -->
-<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════ -->
+<!--                   中文                          -->
+<!-- ═══════════════════════════════════════════════ -->
 <div class="lang" id="lang-zh">
 
 <h1>🔍 审计流程</h1>
-<p class="subtitle">两阶段设计 — 便宜模型做体力活，聪明模型做深度分析</p>
+<p class="subtitle">两阶段、两模型 — 便宜的做体力活，聪明的做分析</p>
 
-<div class="flow">
+<div class="two-col">
 
-  <!-- ═══ 阶段一标签 ═══ -->
-  <span class="phase-label phase-1">⚡ 阶段一 · 准备</span>
-  <p class="phase-desc">
-    用<strong>便宜模型</strong>（如 DeepSeek Flash）跑这个阶段。
-    把需要的文件全部下载好，自动脚本跑完，然后<strong>停下来，输出交接提示词</strong>。
-    不要做任何深度分析——那是阶段二的事。
-  </p>
+  <!-- ═══ 左：阶段一 ═══ -->
+  <div class="col-left">
 
-  <!-- 第 1 步：环境检查 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">1</span> 🔧 环境检查</div>
-    <div class="desc">
-      任何操作之前，先检查环境里装了哪些工具：Python 命令是
-      <code>python</code> 还是 <code>python3</code>？pip 是 <code>pip</code>
-      还是 <code>pip3</code>？有没有 <code>git</code>？
-      下载工具是 <code>curl</code> 还是 <code>wget</code>？
+    <span class="phase-label phase-1">⚡ 阶段一 · 准备</span>
+    <p class="phase-model">用<strong>便宜模型</strong>跑<br>（如 DeepSeek Flash）</p>
+
+    <!-- 1 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">1</span> 🔧 环境检查</div>
+      <div class="desc">检查环境里的命令：是 <code>python</code> 还是 <code>python3</code>？有没有 <code>git</code>？有没有 <code>curl</code>？不同系统命令名不一样，先搞清楚，后面不报错。</div>
     </div>
-    <div class="detail">
-      💡 不同系统命令名不一样，不检查就直接跑会导致无谓的报错。
-      检查一次，后面全部用正确的名字。
-      <strong>如果 git 或 Python 不可用 → 直接中止，告诉用户原因。</strong>
-    </div>
-  </div>
-  <div class="arrow-down"></div>
+    <div class="arrow-down"></div>
 
-  <!-- 第 2 步：解析输入 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">2</span> 📥 解析输入</div>
-    <div class="desc">
-      你给工具一个论文引用——可以是 <strong>arXiv ID</strong>（如 <code>2301.12345</code>）、
-      <strong>论文完整标题</strong>，或者 <strong>arXiv 完整链接</strong>。
-      工具会自动识别你要审的是哪篇论文，并给它起一个干净易读的文件夹名
-      （用方法缩写如 "ResNet"，或者标题前六个词）。
+    <!-- 2 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">2</span> 📥 解析输入</div>
+      <div class="desc">接收 arXiv ID、论文标题或完整链接。自动识别是哪篇论文，起一个干净易读的文件夹名。</div>
     </div>
-  </div>
-  <div class="arrow-down"></div>
+    <div class="arrow-down"></div>
 
-  <!-- 第 3 步：下载 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">3</span> 📄 从 arXiv 下载</div>
-    <div class="desc">
-      通过 arXiv API 获取<strong>两种文件</strong>：
-    </div>
-    <div class="detail">
-      <strong>① PDF 文件</strong>——排版好的论文，几乎总能下载到。<br>
-      <strong>② LaTeX 源码包</strong>——原始 <code>.tex</code> 文件。
-      这是关键：没有它就无法扫描 GitHub 链接，无法解析论文声明。
-    </div>
-  </div>
-  <div class="arrow-branch"></div>
-
-  <!-- 分支：有没有 LaTeX？ -->
-  <div class="branch-row">
-    <div class="branch-card">
-      <div class="branch-label">✅ 有 LaTeX</div>
-      <div class="card">
-        <div class="title">📄 源码已保存</div>
-        <div class="desc">解压到 <code>latex/</code>，所有 <code>.tex</code> 和 <code>.bib</code> 就绪。</div>
+    <!-- 3 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">3</span> 📄 从 arXiv 下载</div>
+      <div class="desc">通过 arXiv API 抓取 PDF + LaTeX 源码包。<code>.tex</code> 文件是关键——没有它就无法扫描 GitHub 链接、无法解析声明。</div>
+      <div class="inline-branch">
+        <span class="br-ok">✅ 有 LaTeX → 继续</span>
+        <span class="br-no">❌ 没有 → 跳到交接提示词</span>
       </div>
     </div>
-    <div class="branch-card">
-      <div class="branch-label">❌ 没有 LaTeX</div>
-      <div class="card stop">
-        <div class="title">⛔ 跳到交接提示词</div>
-        <div class="desc">arXiv 没有 <code>.tex</code> 源文件。在交接提示词中注明——阶段二只能做有限的 PDF 审阅。</div>
+    <div class="arrow-down"></div>
+
+    <!-- 4 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">4</span> 🔗 查找并克隆代码</div>
+      <div class="desc">扫 LaTeX 找 GitHub 链接，判断哪个是<strong>真正的代码仓库</strong>（跳过数据集、依赖库）。找不到就去 GitHub 按标题搜。克隆后确认里面有实际代码。</div>
+      <div class="inline-branch">
+        <span class="br-ok">✅ 有代码 → 继续</span>
+        <span class="br-no">❌ 没有 → 跳到交接提示词</span>
       </div>
     </div>
-  </div>
-  <div class="split-arrow"></div>
+    <div class="arrow-down"></div>
 
-  <!-- 第 4 步：找代码 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">4</span> 🔗 查找并克隆代码</div>
-    <div class="desc">
-      逐篇阅读所有 LaTeX 文件，从中找出 <strong>GitHub 链接</strong>——
-      检查 <code>\url{}</code>、<code>\href{}{}</code> 和链接周围的文字，
-      判断哪个指向<strong>论文真正的代码仓库</strong>（跳过数据集、依赖库、个人主页）。
+    <!-- 5 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">5</span> 🧪 运行自动审计脚本</div>
+      <div class="desc">解析 LaTeX 声明、分析代码结构、交叉比对。生成 <code>audit/audit_report.html</code>——一份脚手架报告，含论文概览、代码统计和留给阶段二的占位区域。</div>
     </div>
-    <div class="detail">
-      🔎 LaTeX 里找不到链接时，自动到 GitHub 上按论文标题搜索。
-      确定目标仓库后<strong>克隆</strong>到 <code>code/</code>，
-      并确认里面确实有代码（不只是 README）。
-    </div>
-  </div>
-  <div class="arrow-branch"></div>
+    <div class="arrow-down"></div>
 
-  <!-- 分支：找到仓库了吗？ -->
-  <div class="branch-row">
-    <div class="branch-card">
-      <div class="branch-label">✅ 找到且有代码</div>
-      <div class="card">
-        <div class="title">📦 代码就绪</div>
-        <div class="desc">已克隆到 <code>code/</code>，有实际实现文件。</div>
+    <!-- 6 -->
+    <div class="card handoff">
+      <div class="title"><span class="step-badge">6</span> 📋 输出交接提示词</div>
+      <div class="desc"><strong>阶段一到此结束。</strong>输出一段自包含的交接提示词，含所有路径、统计和阶段二的 7 步任务清单。<strong>不要</strong>做任何深度分析。</div>
+      <div class="detail" style="margin-top:4px;">📋 用户复制提示词 → 开新窗口 → 切聪明模型 → 粘贴 → 阶段二接上。</div>
+    </div>
+
+  </div>
+
+  <!-- ═══ 右：阶段二 ═══ -->
+  <div class="col-right">
+
+    <span class="phase-label phase-2">🧠 阶段二 · 深度分析</span>
+    <p class="phase-model">用<strong>聪明模型</strong>跑<br>（如 DeepSeek Pro）</p>
+
+    <!-- 7 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">7</span> 📖 阅读所有材料</div>
+      <div class="desc">打开 <code>audit_report.html</code> 看自动扫描结果。通读 LaTeX 源码（摘要、引言、方法、实验），浏览代码结构和关键文件。</div>
+      <div class="detail">🎯 所有文件都已下载好，一上来就有完整上下文。</div>
+    </div>
+    <div class="arrow-down"></div>
+
+    <!-- 8 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">8</span> 🔬 四维度深度审计</div>
+      <div class="desc">逐维度检查，<strong>把发现写入 <code>audit_report.html</code></strong>（占位区域已就绪）。</div>
+      <div class="audit-dims">
+        <div class="dim-chip">
+          <span class="dim-icon">🔁</span>
+          <span class="dim-title">可复现性</span>
+          <span class="dim-sub">数据集、权重、baseline</span>
+        </div>
+        <div class="dim-chip">
+          <span class="dim-icon">🧩</span>
+          <span class="dim-title">方法一致性</span>
+          <span class="dim-sub">论文声明 vs. 代码</span>
+        </div>
+        <div class="dim-chip">
+          <span class="dim-icon">🔬</span>
+          <span class="dim-title">实验细节</span>
+          <span class="dim-sub">超参数、预处理</span>
+        </div>
+        <div class="dim-chip">
+          <span class="dim-icon">📊</span>
+          <span class="dim-title">代码覆盖率</span>
+          <span class="dim-sub">哪些实验有代码？</span>
+        </div>
       </div>
     </div>
-    <div class="branch-card">
-      <div class="branch-label">❌ 没找到 / 空仓库</div>
-      <div class="card stop">
-        <div class="title">⛔ 跳到交接提示词</div>
-        <div class="desc">在交接提示词中注明代码不可用。阶段二只能审阅论文文本。</div>
-      </div>
-    </div>
-  </div>
-  <div class="split-arrow"></div>
+    <div class="arrow-down"></div>
 
-  <!-- 第 5 步：跑自动审计 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">5</span> 🧪 运行自动审计脚本</div>
-    <div class="desc">
-      审计脚本解析 LaTeX 声明，分析代码结构，交叉比对——全部自动完成。
-      输出单个 <strong>HTML 网页</strong>：<code>audit/audit_report.html</code>
-      （浏览器直接打开即可查看）。
+    <!-- 9 -->
+    <div class="card">
+      <div class="title"><span class="step-badge">9</span> 💬 生成 QA 解读页</div>
+      <div class="desc">把引言翻译成三栏 HTML 页面：英文原文 · 人话解释 · 中文翻译。每个自然段一张卡片。</div>
+      <div class="code">qa/introduction.html · qa/method.html · …</div>
     </div>
-    <div class="detail">
-      📊 这为阶段二生成了<strong>脚手架</strong>：论文概览、代码统计、方法/数据集匹配、
-      提取的声明、关键文件，以及带有<strong>虚线占位区域</strong>的总结部分（等待阶段二填入深度审计结果）。
-    </div>
-  </div>
-  <div class="arrow-down"></div>
+    <div class="arrow-down"></div>
 
-  <!-- 第 6 步：输出交接提示词 -->
-  <div class="card" style="border-color:#f59e0b; border-width:2px;">
-    <div class="title"><span class="step-badge" style="background:#f59e0b;">6</span> 📋 输出交接提示词</div>
-    <div class="desc">
-      阶段一到这里就结束了。<strong>不要做任何深度分析。</strong>
-      输出一段自包含的交接提示词，内容包括：
-    </div>
-    <div class="detail">
-      • 论文标题、arXiv ID、所有目录路径<br>
-      • 已下载内容摘要（LaTeX、代码、审计报告）<br>
-      • 自动扫描的关键统计数据<br>
-      • 阶段二的完整 7 步任务清单<br>
-      • 结果写入 audit_report.html 的具体位置说明
-    </div>
-    <div class="detail" style="margin-top:6px;">
-      📋 用户<strong>复制这段提示词</strong>，打开<strong>新会话窗口</strong>，
-      切换到<strong>聪明模型</strong>（如 DeepSeek Pro），粘贴进去，
-      阶段二就自动接上了——不会丢失任何上下文。
-    </div>
-  </div>
-
-  <!-- ═══ 交接分割线 ═══ -->
-  <div class="handoff-divider">
-    <div class="handoff-badge">📋 复制提示词 · 切换模型 · 粘贴到新窗口  📋</div>
-  </div>
-  <p class="handoff-sub">
-    ⬆️ 阶段一结束 &nbsp;·&nbsp; 用户从便宜模型切换到聪明模型 &nbsp;·&nbsp; 阶段二开始 ⬇️
-  </p>
-
-  <!-- ═══ 阶段二标签 ═══ -->
-  <span class="phase-label phase-2" style="margin-top:8px;">🧠 阶段二 · 深度分析</span>
-  <p class="phase-desc">
-    用<strong>聪明模型</strong>（如 DeepSeek Pro）跑这个阶段。
-    读论文、读代码、逐条对比声明，把发现写入 <code>audit/audit_report.html</code>，
-    然后生成 QA 解读页面。
-  </p>
-
-  <!-- 第 7 步：阅读材料 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">7</span> 📖 阅读所有材料</div>
-    <div class="desc">
-      打开 <code>audit/audit_report.html</code> 查看自动扫描结果。
-      通读 LaTeX 源码（重点：摘要、引言、方法、实验）。
-      浏览代码仓库结构和关键实现文件。
-    </div>
-    <div class="detail">
-      🎯 所有文件都已下载好。你从一开始就能看到论文声明了什么、代码里有什么。
-    </div>
-  </div>
-  <div class="arrow-down"></div>
-
-  <!-- 第 8 步：四维度审计 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">8</span> 🔬 四维度深度审计</div>
-    <div class="desc">
-      逐一检查每个维度，<strong>把发现直接写入
-      <code>audit/audit_report.html</code></strong>
-      （HTML 里有预留的占位区域等你去填）：
-    </div>
-  </div>
-  <div class="arrow-down"></div>
-
-  <div class="section-divider">▼ 四大审计维度 ▼</div>
-  <div class="sub-flow">
-
-    <div class="sub-card">
-      <div class="sub-icon">🔁</div>
-      <div class="sub-title">可复现性</div>
-      <div class="sub-desc">
-        数据集有下载脚本吗？预训练权重提供没？
-        对比的 baseline 是真的实现了，还是从别的论文抄了个数字？
-      </div>
+    <!-- 完成 -->
+    <div class="card done">
+      <div class="title"><span class="step-badge">✓</span> 审计完成</div>
+      <div class="desc">完整的 <code>audit_report.html</code>（四个维度已填好）+ QA 解读页面。全部自包含 HTML，浏览器直接打开。</div>
     </div>
 
-    <div class="sub-card">
-      <div class="sub-icon">🧩</div>
-      <div class="sub-title">方法一致性</div>
-      <div class="sub-desc">
-        逐行对比：论文<em>说</em>的 vs. 代码<em>做</em>的。
-        抓夸大其词——"新颖的注意力机制"其实只是标准多头 attention。
-      </div>
-    </div>
-
-    <div class="sub-card">
-      <div class="sub-icon">🔬</div>
-      <div class="sub-title">实验细节</div>
-      <div class="sub-desc">
-        超参数、数据预处理、评估指标——论文的描述和配置文件、
-        训练脚本里的实际设置是不是一回事？
-      </div>
-    </div>
-
-    <div class="sub-card">
-      <div class="sub-icon">📊</div>
-      <div class="sub-title">代码覆盖率</div>
-      <div class="sub-desc">
-        论文里的每个实验、每张表、每幅图——代码里有没有对应实现？
-        标记出无法复现的结果。
-      </div>
-    </div>
-
-  </div>
-  <div class="arrow-sub-down"></div>
-
-  <!-- 第 9 步：QA 页面 -->
-  <div class="card">
-    <div class="title"><span class="step-badge">9</span> 💬 生成 QA 解读页面</div>
-    <div class="desc">
-      <strong>默认执行：</strong>把论文引言翻译成三栏对照 HTML 页面
-      （<code>qa/introduction.html</code>）——英文原文 · 人话解释 · 中文翻译。
-    </div>
-    <div class="detail">
-      📝 每个自然段是一张<strong>卡片</strong>，读者可以像读带注释的双语指南一样浏览论文。
-      后续问题在 <code>qa/</code> 目录下新建页面——同样卡片风格，一个问题一个 HTML 文件。
-    </div>
-    <div class="code">qa/introduction.html · qa/method.html · qa/experiments.html · …</div>
-  </div>
-  <div class="arrow-down"></div>
-
-  <!-- 完成 -->
-  <div class="card" style="border-color:#22c55e; border-width:2px;">
-    <div class="title"><span class="step-badge" style="background:#22c55e;">✓</span> 审计完成</div>
-    <div class="desc">
-      现在用户手里有一份完整的 <code>audit/audit_report.html</code>（四个维度都已填好），
-      加上引言解读和后续问答页面。全部是自包含的 HTML 文件——浏览器直接打开，不需要服务器。
-    </div>
   </div>
 
 </div>
