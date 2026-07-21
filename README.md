@@ -16,7 +16,7 @@ Given a paper title, this skill fetches the LaTeX source from arXiv, finds the c
 **安装** — 克隆到技能目录：
 
 ```bash
-git clone git@github.com:x2x5/code-audit-paper-skill.git ~/.agents/skills/code-audit-paper
+git clone git@github.com:x2x5/code-audit-paper.git ~/.agents/skills/code-audit-paper
 ```
 
 **Invoke** — in ZCode, type `/code-audit-paper <arXiv ID or paper title>`, or just say *"Audit the paper 'Attention Is All You Need'"*.
