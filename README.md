@@ -1,42 +1,138 @@
 # code-audit-paper
 
-Audit academic papers: compare paper claims against actual code.  
-论文代码审计：对比论文声明与实际代码实现。  
+**用代码当证据，看看论文到底有没有吹牛。**
 
-🌐 **GitHub Pages → https://x2x5.github.io/code-audit-paper**
+你读到一篇 AI 论文，说自己的方法"达到了 SOTA""提出了新颖的架构"——但代码里真的是这样吗？这个工具帮你自动下载论文和代码，然后逐条对比论文的声明和代码的实际实现，生成一份带完整证据的审计报告。
+
+🌐 **流程图和说明 → https://x2x5.github.io/code-audit-paper**
 
 ---
 
-## Quick Start
+## 它做了什么？
+
+一句话：**从论文标题开始 → 自动下载论文和代码 → 四维度审计 → 输出一份能在浏览器里看的完整报告。**
+
+具体来说分两个阶段：
+
+| 阶段 | 谁来做 | 做什么 |
+|------|--------|--------|
+| ⚡ 准备阶段 | 便宜模型（如 DeepSeek Flash） | 环境检查 → 下载论文 PDF 和 LaTeX 源码 → 找到 GitHub 代码仓库并克隆 → 跑自动审计脚本生成报告脚手架 |
+| 🧠 分析阶段 | 聪明模型（如 DeepSeek Pro） | 读论文、读代码 → 四维度深度审计 → 把发现写入报告 → 生成通俗易懂的 QA 解读页面 |
+
+阶段一跑完后会输出一段**交接提示词**，你复制它，开个新窗口，切聪明模型，粘贴——阶段二就自动接上了。不会丢任何上下文。
+
+---
+
+## 安装
 
 ```bash
-# Install
 git clone git@github.com:x2x5/code-audit-paper.git ~/.agents/skills/code-audit-paper
-
-# In ZCode, type
-/code-audit-paper <arXiv ID or paper title>
 ```
 
-## Scripts
+只有一个依赖：**Python 3.6+ 标准库**（不需要额外装任何包）外加系统里有 `git`。
 
-```bash
-python3 scripts/fetch_arxiv.py "<title>" -o ./output      # download LaTeX
-python3 scripts/fetch_code.py "<title>" -o ./output ...   # find & clone code
-python3 scripts/audit.py ...                              # audit
+---
+
+## 怎么用
+
+### 第一步：在 ZCode 里启动审计
+
+```
+/code-audit-paper <arXiv ID 或论文标题或 arXiv 链接>
 ```
 
-## Audit Dimensions
+比如：
 
-| # | Check |
-|---|-------|
-| 0 | **Reproducibility** — dataset, weights, baselines |
-| 1 | **Method Consistency** — paper vs code |
-| 2 | **Experiment Details** — hyperparams, preprocessing |
-| 3 | **Code Coverage** — which experiments have code? |
+```
+/code-audit-paper 2301.12345
+/code-audit-paper Attention Is All You Need
+/code-audit-paper https://arxiv.org/abs/2301.12345
+```
 
-## Design
+### 第二步：等着（便宜模型在干活）
 
-- No LaTeX? Stop. No PDF parsing.
-- No GitHub? Say so.
-- Zero external deps (Python 3.6+ stdlib + git).
-- Reports in Chinese. Agent judges, scripts assist.
+它会自动：
+1. **检查环境**——找到你系统里正确的 `python`/`git`/`pip` 命令
+2. **下载论文**——从 arXiv 抓 PDF 和 LaTeX 源码
+3. **找代码仓库**——扫 LaTeX 里的 GitHub 链接，或搜 GitHub，然后克隆
+4. **跑自动审计**——生成 `audit_report.html`，里面有论文概览、代码结构、声明匹配
+
+### 第三步：复制提示词，切换模型
+
+阶段一结束后，它会输出一段**交接提示词**。你复制这段文字，开一个新 ZCode 窗口，选择聪明模型，粘贴进去。
+
+### 第四步：等着（聪明模型在深度分析）
+
+聪明模型会：
+1. 通读 LaTeX 源码和代码
+2. 做四维度深度审计（往下看）
+3. 把所有发现写入 `audit_report.html`
+4. 生成论文引言的通俗解读 + 中文翻译（三栏对照网页）
+
+### 第五步：打开报告
+
+一切完成后，用浏览器打开 `audit_report.html`——一份完整的、有证据的审计报告就在你面前。
+
+---
+
+## 审计报告的四个维度
+
+| # | 维度 | 通俗解释 |
+|---|------|----------|
+| 🔁 | **可复现性** | 数据集有下载方式吗？预训练权重给了吗？对比的 baseline 是真的实现了，还是从别的论文抄了个数字？——回答"我能自己跑出论文里的结果吗？" |
+| 🧩 | **方法一致性** | 论文说模型做了什么 vs. 代码里实际写了什么。抓那些夸大其词的——"新颖的多头注意力机制"其实就是一个标准 8-head attention。 |
+| 🔬 | **实验细节** | 学习率、batch size、优化器、数据增强方式——论文里写的和代码配置文件里实际设置的是不是一回事？ |
+| 📊 | **代码覆盖率** | 论文里每个实验、每张表、每幅图——代码里有没有对应的实现？标记出那些论文描述了但代码里完全找不到的。 |
+
+---
+
+## 输出文件长什么样？
+
+审计完成后，你的目录结构是这样的：
+
+```
+audit_output/
+  resnet/                          # 论文名（方法缩写）
+    ├── paper.pdf                  # 论文 PDF
+    ├── paper.json                 # 论文元数据
+    ├── latex/                     # LaTeX 源码（.tex / .bib）
+    ├── code/                      # 克隆的代码仓库
+    ├── audit/
+    │   └── audit_report.html      # ⭐ 完整的审计报告网页
+    └── qa/
+        ├── introduction.html      # 引言三栏解读（英/人话/中）
+        ├── method.html            # 方法解读（如有提问）
+        └── ...                    # 更多问答页面
+```
+
+所有 HTML 都是自包含的——直接浏览器打开，不需要任何服务器。
+
+---
+
+## 常见问题
+
+**Q: 论文没有 LaTeX 源码（arXiv 只有 PDF）怎么办？**
+
+阶段一会在交接提示词里注明。阶段二仍然可以读 PDF 做有限的审阅，但无法自动扫描 GitHub 链接、无法精确解析声明——审计深度会打折扣。
+
+**Q: 论文没有公开代码怎么办？**
+
+阶段一会在交接提示词里注明代码不可用。阶段二只能审阅论文文本本身，标记"代码不可用，以下声明无法验证"。
+
+**Q: 为什么用两个模型？**
+
+便宜模型做体力活（下载、克隆、跑脚本）完全够用，没必要烧钱。聪明模型的思考时间用在刀刃上——读论文、对比代码、做专业判断。两阶段设计就是让每一分算力都花得值。
+
+**Q: 需要对 arXiv 或 GitHub 做任何认证吗？**
+
+不需要。arXiv API 是公开的，GitHub 克隆公开仓库也不需要登录。
+
+---
+
+## 设计原则
+
+- **零外部依赖**：只用 Python 3.6+ 标准库 + git。不需要 pip install 任何东西。
+- **脚本辅助，人做判断**：自动脚本负责提取和匹配，但最终的审计结论由模型（阅读论文和代码后）做出。
+- **输出即网页**：所有报告都是自包含的 HTML 文件，浏览器打开就能看，不需要 Markdown 阅读器、不需要本地服务器。
+- **中文优先**：报告和解读面向中文用户。
+- **宁可说"不知道"也不瞎猜**：没有代码就说没有，没有 LaTeX 就说没有，如实记录每一个 ❌。
