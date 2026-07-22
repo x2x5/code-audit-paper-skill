@@ -65,24 +65,27 @@ python3 scripts/fetch_arxiv.py "<query>" --output-dir <base_dir>
 
 ## Step 2：确定论文目录名
 
-**目录名应该在下载好 LaTeX 源码之后再定，因为方法缩写要从源码里找。**
-
-在 `latex/` 目录下的 `.tex` 文件中搜索方法缩写：
-
-- 优先找论文提出的**方法名 / 模型名的全大写缩写**（如 ResNet、ViT、DALL-E、JMVR、LoRA、Diffusion）。通常在 `\title` 或摘要附近出现
-- 如果没有明显的缩写，取论文标题的**前 6 个单词**，小写连字符连接（如 `toward-high-fidelity-visual-reconstruction`）
-- 把临时目录重命名为这个干净的名字
+**目录名应该在下载好 LaTeX 源码之后再定。目录结构带时间戳，方便按时间排序：**
 
 ```
 <base_dir>/
-  <paper_name>/          # ← 方法缩写 或 标题前6词
-    paper.pdf
-    paper.json
-    latex/               # LaTeX 源码
-    code/                # 代码仓库（下一步克隆）
+  <MMDD>/                        # 月日（如 0722）
+    <HHMM>-<paper_name>/         # 时分-论文名
+      paper.pdf
+      paper.json
+      latex/                     # LaTeX 源码
+      code/                      # 代码仓库（下一步克隆）
 ```
 
-如果论文**没有 LaTeX 源码**（arXiv 只有 PDF），用论文标题前 6 个单词命名，后续审计如实标注"无 LaTeX 源码"。
+在 `latex/` 目录下的 `.tex` 文件中搜索方法缩写作为 `<paper_name>`：
+- 优先找论文提出的**方法名 / 模型名的全大写缩写**（如 ResNet、ViT、DALL-E、JMVR、LoRA、Diffusion）。通常在 `\title` 或摘要附近出现
+- 如果没有明显的缩写，取论文标题的**前 6 个单词**，小写连字符连接（如 `toward-high-fidelity-visual-reconstruction`）
+
+把临时目录重命名为 `<base_dir>/<MMDD>/<HHMM>-<paper_name>/`。
+
+如果论文**没有 LaTeX 源码**（arXiv 只有 PDF），用论文标题前 6 个单词做 `<paper_name>`，后续审计如实标注"无 LaTeX 源码"。
+
+> 📌 **以下所有路径中，`<paper_dir>` 表示 `<base_dir>/<MMDD>/<HHMM>-<paper_name>`。**
 
 ---
 
@@ -98,7 +101,7 @@ python3 scripts/fetch_arxiv.py "<query>" --output-dir <base_dir>
 
 ```bash
 python3 scripts/fetch_code.py "<query>" --output-dir <base_dir> \
-    --latex-dir <base_dir>/<paper_name>/latex \
+    --latex-dir <paper_dir>/latex \
     --repo-url <确定的仓库 URL>
 ```
 
@@ -117,8 +120,8 @@ LaTeX 里没有链接时，先跑搜索模式让脚本列候选，你选一个�
 ## Step 4：运行自动审计脚本
 
 ```bash
-python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/code \
-    --output-dir <base_dir>/<paper_name>/audit
+python3 scripts/audit.py <paper_dir>/latex <paper_dir>/code \
+    --output-dir <paper_dir>/audit
 ```
 
 生成 `audit/audit_report.html`——含论文概览、代码结构、交叉比对、声明详情、关键文件、审计总结（带虚线占位区域）。
@@ -186,7 +189,7 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 ## Step 7：保存交接提示词
 
-创建 `<base_dir>/<paper_name>/handoff_prompt.md`，填入以下模板：
+创建 `<paper_dir>/handoff_prompt.md`，填入以下模板：
 
 ```markdown
 # 深度重审提示词 — <论文标题>
@@ -195,14 +198,14 @@ python3 scripts/audit.py <base_dir>/<paper_name>/latex <base_dir>/<paper_name>/c
 
 - **论文标题**：<论文完整标题>
 - **arXiv ID**：<arXiv ID>
-- **论文目录**：<base_dir>/<paper_name>/
+- **论文目录**：<paper_dir>/
 
 ### 已有材料
 
-- **LaTeX 源码**：<base_dir>/<paper_name>/latex/   <如果无，写"❌ 无">
-- **代码仓库**：<base_dir>/<paper_name>/code/       <如果无，写"❌ 无">
-- **首轮审计报告**：<base_dir>/<paper_name>/audit/audit_report.html
-- **论文 PDF**：<base_dir>/<paper_name>/paper.pdf
+- **LaTeX 源码**：<paper_dir>/latex/   <如果无，写"❌ 无">
+- **代码仓库**：<paper_dir>/code/       <如果无，写"❌ 无">
+- **首轮审计报告**：<paper_dir>/audit/audit_report.html
+- **论文 PDF**：<paper_dir>/paper.pdf
 
 ### 首轮审计摘要
 

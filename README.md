@@ -83,19 +83,22 @@ git clone git@github.com:x2x5/code-audit-paper.git ~/.agents/skills/code-audit-p
 
 ```
 audit_output/
-  resnet/                             # 方法缩写（从 LaTeX 源码中提取）
-    ├── paper.pdf
-    ├── paper.json
-    ├── latex/                        # LaTeX 源码
-    ├── code/                         # 克隆的代码仓库
-    ├── audit/
-    │   ├── audit_report.html         # ⭐ 首轮审计报告
-    │   └── audit_report_deep.html    # （可选）深度重审报告
-    ├── handoff_prompt.md             # 交接提示词
-    └── qa/
-        ├── introduction.html         # 引言三栏解读
-        └── ...
+  0722/                                  # 月日（审计日期）
+    1914-visual-autoregressive-modeling/ # 时分-论文名
+      ├── paper.pdf
+      ├── paper.json
+      ├── latex/                         # LaTeX 源码
+      ├── code/                          # 克隆的代码仓库
+      ├── audit/
+      │   ├── audit_report.html          # ⭐ 首轮审计报告
+      │   └── audit_report_deep.html     # （可选）深度重审报告
+      ├── handoff_prompt.md              # 交接提示词
+      └── qa/
+          ├── introduction.html          # 引言三栏解读
+          └── ...
 ```
+
+目录名由三部分组成：**月日 / 时分 - 论文名**。论文名从 LaTeX 源码中提取（方法缩写如 ResNet，或标题前 6 词）。这样多个审计按时间自动排序。
 
 所有 HTML 都是自包含的——浏览器直接打开，不需要服务器。
 
@@ -110,7 +113,7 @@ audit_output/
 报告中如实标注"代码不可用"。审计只能基于论文文本。
 
 **Q: 目录名是怎么定的？**
-不是提前猜的——下载完 LaTeX 源码后，从 `.tex` 文件中找方法缩写（如 ResNet、ViT）。找不到就用标题前 6 个单词。这样目录名反映论文实际内容，而不是一串 arXiv 数字。
+不是提前猜的——下载完 LaTeX 源码后，从 `.tex` 文件中找方法缩写（如 ResNet、ViT）。找不到就用标题前 6 个单词。前面加上时间戳（月日/时分-），方便多次审计自动排序。
 
 **Q: 深度重审和首轮审计有什么区别？**
 首轮产出 `audit_report.html`，深度重审产出 `audit_report_deep.html`（更详细，含代码片段引用和行号，不修改原报告）。两者可以对比着看。
@@ -125,7 +128,7 @@ audit_output/
 - **零外部依赖**：只用 Python 3.6+ 标准库 + git
 - **脚本辅助，人做判断**：自动脚本负责提取和匹配，审计结论由模型阅读论文和代码后做出
 - **输出即网页**：所有报告都是自包含 HTML，浏览器打开就能看
-- **目录名后定**：下载完 LaTeX 源码后再确定目录名，用方法缩写而非 arXiv ID
+- **目录名后定**：下载完 LaTeX 源码后再确定目录名，用方法缩写而非 arXiv ID，加上时间戳前缀自动排序
 - **首轮和深度分开**：深度重审不覆盖首轮报告，两份并存可对比
 - **中文优先**：报告和解读面向中文用户
 - **诚实记录**：没有代码就说没有，没有 LaTeX 就说没有
